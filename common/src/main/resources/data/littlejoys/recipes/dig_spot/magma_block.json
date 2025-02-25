@@ -1,0 +1,10 @@
+{
+  "type": "littlejoys:dig_spot",
+  "eventCondition": {
+    "type": "above_state",
+    "state": {
+      "Name": "minecraft:magma_block"
+    }
+  },
+  "lootTable": "littlejoys:dig_spot/magma_block"
+}

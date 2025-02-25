@@ -1,0 +1,10 @@
+{
+  "type": "littlejoys:dig_spot",
+  "eventCondition": {
+    "type": "above_state",
+    "state": {
+      "Name": "minecraft:basalt"
+    }
+  },
+  "lootTable": "littlejoys:dig_spot/basalt"
+}

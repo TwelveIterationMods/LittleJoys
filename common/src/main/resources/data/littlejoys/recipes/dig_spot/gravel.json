@@ -1,0 +1,10 @@
+{
+  "type": "littlejoys:dig_spot",
+  "eventCondition": {
+    "type": "above_state",
+    "state": {
+      "Name": "minecraft:gravel"
+    }
+  },
+  "lootTable": "littlejoys:dig_spot/gravel"
+}

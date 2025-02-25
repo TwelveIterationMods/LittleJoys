@@ -1,0 +1,10 @@
+{
+  "type": "littlejoys:gold_rush",
+  "eventCondition": {
+    "type": "is_state",
+    "state": {
+      "Name": "minecraft:deepslate_emerald_ore"
+    }
+  },
+  "lootTable": "minecraft:blocks/deepslate_emerald_ore"
+}

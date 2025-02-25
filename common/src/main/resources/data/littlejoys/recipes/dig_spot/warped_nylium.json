@@ -1,0 +1,10 @@
+{
+  "type": "littlejoys:dig_spot",
+  "eventCondition": {
+    "type": "above_state",
+    "state": {
+      "Name": "minecraft:warped_nylium"
+    }
+  },
+  "lootTable": "littlejoys:dig_spot/warped_nylium"
+}

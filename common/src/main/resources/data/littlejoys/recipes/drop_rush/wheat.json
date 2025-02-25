@@ -1,0 +1,13 @@
+{
+  "type": "littlejoys:drop_rush",
+  "eventCondition": {
+    "type": "is_state",
+    "state": {
+      "Name": "minecraft:wheat",
+      "Properties": {
+        "age": "7"
+      }
+    }
+  },
+  "lootTable": "minecraft:blocks/wheat"
+}

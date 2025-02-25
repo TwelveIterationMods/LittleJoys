@@ -1,0 +1,10 @@
+{
+  "type": "littlejoys:dig_spot",
+  "eventCondition": {
+    "type": "above_state",
+    "state": {
+      "Name": "minecraft:red_sand"
+    }
+  },
+  "lootTable": "littlejoys:dig_spot/red_sand"
+}
