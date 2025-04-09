@@ -196,7 +196,7 @@ public class ModGenericLootTableProvider extends SimpleFabricLootTableProvider {
 
     private static LootPool.Builder overworldDigSpot() {
         return LootPool.lootPool()
-                .add(LootItem.lootTableItem(Items.IRON_ORE).setWeight(2).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
+                .add(LootItem.lootTableItem(Items.RAW_IRON).setWeight(2).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
                 .add(LootItem.lootTableItem(Items.BONE).setWeight(2).apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 4))))
                 .add(LootItem.lootTableItem(Items.ENDER_PEARL))
                 .add(LootItem.lootTableItem(Items.CARROT).setWeight(1).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 4))))
