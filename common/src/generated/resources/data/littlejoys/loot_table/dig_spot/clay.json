@@ -79,7 +79,7 @@
               "function": "minecraft:set_count"
             }
           ],
-          "name": "minecraft:iron_ore",
+          "name": "minecraft:raw_iron",
           "weight": 2
         },
         {
