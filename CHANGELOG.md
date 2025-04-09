@@ -1,1 +1,1 @@
-- Initial Release
+- Fixed overworld dig spots dropping iron ore instead of raw iron
