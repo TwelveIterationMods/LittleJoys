@@ -1,6 +1,7 @@
 plugins {
     id 'multiloader-loader'
-    id 'net.neoforged.moddev.legacyforge'
+    id 'net.minecraftforge.gradle' version '[6.0.25,6.2)'
+    id 'org.spongepowered.mixin' version '0.7-SNAPSHOT'
     id 'net.darkhax.curseforgegradle'
     id "com.modrinth.minotaur"
 }
@@ -12,36 +13,67 @@ mixin {
     config("${mod_id}.forge.mixins.json")
 }
 
-legacyForge {
-    version = "${minecraft_version}-${forge_version}"
-
-    validateAccessTransformers = true
-
-    def at = project(':common').file('src/main/resources/META-INF/accesstransformer.cfg')
-    if (at.exists()) {
-        accessTransformers = ["src/main/resources/META-INF/accesstransformer.cfg"]
+jar {
+    manifest {
+        attributes["MixinConfigs"] = "${mod_id}.mixins.json,${mod_id}.forge.mixins.json"
     }
+}
 
-    parchment {
-        minecraftVersion = parchment_minecraft
-        mappingsVersion = parchment_version
+minecraft {
+    mappings channel: 'official', version: minecraft_version
+
+    reobf = false
+
+    copyIdeResources = true
+
+    // Automatically enable forge AccessTransformers if the file exists
+    // This location is hardcoded in Forge and can not be changed.
+    // https://github.com/MinecraftForge/MinecraftForge/blob/be1698bb1554f9c8fa2f58e32b9ab70bc4385e60/fmlloader/src/main/java/net/minecraftforge/fml/loading/moddiscovery/ModFile.java#L123
+    def at = file('src/main/resources/META-INF/accesstransformer.cfg')
+    if (at.exists()) {
+        accessTransformer = at
     }
 
     runs {
         client {
-            client()
+            workingDirectory file('runs/client')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName "Client"
+
+            property 'forge.enabledGameTestNamespaces', mod_id
+
+            mods {
+                modClientRun {
+                    source sourceSets.main
+                }
+            }
         }
-        data {
-            data()
-            programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-        }
+
         server {
-            server()
+            workingDirectory file('runs/server')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            taskName "Server"
+
+            property 'forge.enabledGameTestNamespaces', mod_id
+
+            mods {
+                modServerRun {
+                    source sourceSets.main
+                }
+            }
         }
-    }
-    mods {
-        "${mod_id}" {
-            sourceSet sourceSets.main
+
+        data {
+            workingDirectory file('runs/data')
+            ideaModule "${rootProject.name}.${project.name}.main"
+            args '--mod', mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            taskName "Data"
+
+            mods {
+                modDataRun {
+                    source sourceSets.main
+                }
+            }
         }
     }
 }
@@ -49,18 +81,22 @@ legacyForge {
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 dependencies {
+    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
     annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
-}
-
-jar {
-    finalizedBy('reobfJar')
-    manifest.attributes([
-            "MixinConfigs": "${mod_id}.mixins.json,${mod_id}.forge.mixins.json"
-    ])
+    // temporary hacky fix as suggested by Forge
+    implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
 }
 
 apply from: rootProject.file('repositories.gradle')
 apply from: 'dependencies.gradle'
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            fg.component(it)
+        }
+    }
+}
 
 task curseforge(type: net.darkhax.curseforgegradle.TaskPublishCurseForge) {
     dependsOn('build')
@@ -95,4 +131,10 @@ modrinth {
     dependencies {
         required.project "balm"
     }
+}
+
+sourceSets.each {
+    def dir = layout.buildDirectory.dir("sourcesSets/$it.name")
+    it.output.resourcesDir = dir
+    it.java.destinationDirectory = dir
 }

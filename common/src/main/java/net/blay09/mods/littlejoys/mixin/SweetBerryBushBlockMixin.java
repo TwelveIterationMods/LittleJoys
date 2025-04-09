@@ -17,8 +17,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(SweetBerryBushBlock.class)
 public class SweetBerryBushBlockMixin {
-    @Inject(method = "use", at = @At("RETURN"))
-    public void use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
+    @Inject(method = "useWithoutItem", at = @At("RETURN"))
+    public void useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit, CallbackInfoReturnable<InteractionResult> cir) {
         if (cir.getReturnValue() == InteractionResult.CONSUME && level instanceof ServerLevel serverLevel) {
             DropRushHandler.handleDropRushChance(serverLevel, pos, state, player);
         }

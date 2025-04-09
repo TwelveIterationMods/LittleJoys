@@ -29,19 +29,19 @@ public class LittleJoys {
 
     public static void initialize() {
         LittleJoysAPI.__setupAPI(new InternalMethodsImpl());
-        LittleJoysAPI.registerEventCondition(new ResourceLocation("above_fluid_source"),
+        LittleJoysAPI.registerEventCondition(ResourceLocation.withDefaultNamespace("above_fluid_source"),
                 AboveFluidSourceCondition.class,
                 AboveFluidSourceCondition.CODEC,
                 AboveFluidSourceCondition::fromNetwork);
-        LittleJoysAPI.registerEventCondition(new ResourceLocation("above_state"),
+        LittleJoysAPI.registerEventCondition(ResourceLocation.withDefaultNamespace("above_state"),
                 AboveStateCondition.class,
                 AboveStateCondition.CODEC,
                 AboveStateCondition::fromNetwork);
-        LittleJoysAPI.registerEventCondition(new ResourceLocation("is_state"), IsStateCondition.class, IsStateCondition.CODEC, IsStateCondition::fromNetwork);
-        LittleJoysAPI.registerEventCondition(new ResourceLocation("all"), AndCondition.class, AndCondition.CODEC, AndCondition::fromNetwork);
-        LittleJoysAPI.registerEventCondition(new ResourceLocation("any"), AnyCondition.class, AnyCondition.CODEC, AnyCondition::fromNetwork);
-        LittleJoysAPI.registerEventCondition(new ResourceLocation("always"), AlwaysCondition.class, AlwaysCondition.CODEC, AlwaysCondition::fromNetwork);
-        LittleJoysAPI.registerEventCondition(new ResourceLocation("can_see_sky"),
+        LittleJoysAPI.registerEventCondition(ResourceLocation.withDefaultNamespace("is_state"), IsStateCondition.class, IsStateCondition.CODEC, IsStateCondition::fromNetwork);
+        LittleJoysAPI.registerEventCondition(ResourceLocation.withDefaultNamespace("all"), AndCondition.class, AndCondition.CODEC, AndCondition::fromNetwork);
+        LittleJoysAPI.registerEventCondition(ResourceLocation.withDefaultNamespace("any"), AnyCondition.class, AnyCondition.CODEC, AnyCondition::fromNetwork);
+        LittleJoysAPI.registerEventCondition(ResourceLocation.withDefaultNamespace("always"), AlwaysCondition.class, AlwaysCondition.CODEC, AlwaysCondition::fromNetwork);
+        LittleJoysAPI.registerEventCondition(ResourceLocation.withDefaultNamespace("can_see_sky"),
                 CanSeeSkyCondition.class,
                 CanSeeSkyCondition.CODEC,
                 CanSeeSkyCondition::fromNetwork);
@@ -65,7 +65,7 @@ public class LittleJoys {
     }
 
     public static ResourceLocation id(String path) {
-        return new ResourceLocation(MOD_ID, path);
+        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
 
 }

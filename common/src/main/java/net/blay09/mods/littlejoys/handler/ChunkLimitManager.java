@@ -2,6 +2,7 @@ package net.blay09.mods.littlejoys.handler;
 
 import net.blay09.mods.littlejoys.LittleJoys;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerLevel;
@@ -48,7 +49,7 @@ public class ChunkLimitManager extends SavedData {
         setDirty();
     }
 
-    public static ChunkLimitManager read(CompoundTag tag) {
+    public static ChunkLimitManager read(CompoundTag tag, HolderLookup.Provider provider) {
         final var manager = new ChunkLimitManager();
         if (tag.contains(FISHING_SPOT_CHUNKS, Tag.TAG_COMPOUND)) {
             final var fishingSpotsTag = tag.getCompound(FISHING_SPOT_CHUNKS);
@@ -72,7 +73,7 @@ public class ChunkLimitManager extends SavedData {
     }
 
     @Override
-    public CompoundTag save(CompoundTag tag) {
+    public CompoundTag save(CompoundTag tag, HolderLookup.Provider provider) {
         final var fishingSpotsTag = new CompoundTag();
         for (final var entry : fishingSpotCounts.entrySet()) {
             fishingSpotsTag.putInt(String.valueOf(entry.getKey()), entry.getValue());
@@ -89,6 +90,6 @@ public class ChunkLimitManager extends SavedData {
     }
 
     public static ChunkLimitManager get(ServerLevel level) {
-        return level.getDataStorage().computeIfAbsent(ChunkLimitManager::read, ChunkLimitManager::new, DATA_NAME);
+        return level.getDataStorage().computeIfAbsent(new Factory<>(ChunkLimitManager::new, ChunkLimitManager::read, null), DATA_NAME);
     }
 }

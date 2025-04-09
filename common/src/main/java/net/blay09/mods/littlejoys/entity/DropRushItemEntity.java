@@ -101,9 +101,9 @@ public class DropRushItemEntity extends ItemEntity {
     }
 
     @Override
-    protected void defineSynchedData() {
-        super.defineSynchedData();
-        getEntityData().define(DATA_TARGET, Optional.empty());
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_TARGET, Optional.empty());
     }
 
     @Override

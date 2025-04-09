@@ -35,7 +35,7 @@ public class DigSpotLootModifier implements BalmLootModifier {
         DigSpotHandler.recipeById(level, digSpot.getRecipeId()).ifPresent(recipe -> {
             final var lootTableId = recipe.lootTable();
             if (lootTableId != BuiltInLootTables.EMPTY) {
-                final var lootTable = level.getServer().getLootData().getLootTable(lootTableId);
+                final var lootTable = level.getServer().reloadableRegistries().getLootTable(lootTableId);
                 synchronized (activeContexts) {
                     activeContexts.add(context);
                 }

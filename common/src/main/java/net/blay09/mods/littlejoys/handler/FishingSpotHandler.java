@@ -8,8 +8,10 @@ import net.blay09.mods.littlejoys.LittleJoysConfig;
 import net.blay09.mods.littlejoys.block.ModBlocks;
 import net.blay09.mods.littlejoys.block.entity.FishingSpotBlockEntity;
 import net.blay09.mods.littlejoys.particle.ModParticles;
+import net.blay09.mods.littlejoys.recipe.DigSpotRecipe;
 import net.blay09.mods.littlejoys.recipe.FishingSpotRecipe;
 import net.blay09.mods.littlejoys.recipe.ModRecipeTypes;
+import net.blay09.mods.littlejoys.recipe.WeightedRecipeHolder;
 import net.blay09.mods.littlejoys.recipe.condition.EventContextImpl;
 import net.blay09.mods.littlejoys.stats.ModStats;
 import net.blay09.mods.littlejoys.tag.ModPoiTypeTags;
@@ -23,6 +25,7 @@ import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.jetbrains.annotations.Nullable;
 
@@ -69,10 +72,10 @@ public class FishingSpotHandler {
                         return;
                     }
 
-                    resolveRecipe(level, aboveSurfacePos, null).ifPresentOrElse(recipe -> {
+                    resolveRecipe(level, aboveSurfacePos, null).ifPresentOrElse(recipeHolder -> {
                         level.setBlock(aboveSurfacePos, ModBlocks.fishingSpot.defaultBlockState(), 3);
                         if (level.getBlockEntity(aboveSurfacePos) instanceof FishingSpotBlockEntity fishingSpot) {
-                            fishingSpot.setRecipeId(recipe.identifier());
+                            fishingSpot.setRecipeId(recipeHolder.id());
                         }
                         ChunkLimitManager.get(level).trackFishingSpot(aboveSurfacePos);
                         littleJoysData.putInt(FISHING_SPOT_COOLDOWN, Math.round(LittleJoysConfig.getActive().fishingSpots.spawnIntervalSeconds * 20));
@@ -88,36 +91,37 @@ public class FishingSpotHandler {
         return player.blockPosition().relative(forwardDirection, projectForwardDistance);
     }
 
-    private static Optional<FishingSpotRecipe> findRecipe(ServerLevel level, BlockPos pos) {
+    private static Optional<RecipeHolder<FishingSpotRecipe>> findRecipe(ServerLevel level, BlockPos pos) {
         final var recipeManager = level.getRecipeManager();
         final var recipes = recipeManager.getAllRecipesFor(ModRecipeTypes.fishingSpotRecipeType);
-        final var candidates = new ArrayList<FishingSpotRecipe>();
+        final var candidates = new ArrayList<WeightedRecipeHolder<FishingSpotRecipe>>();
         for (final var recipe : recipes) {
             if (isValidRecipeFor(recipe, level, pos)) {
-                candidates.add(recipe);
+                candidates.add(new WeightedRecipeHolder<>(recipe));
             }
         }
-        return WeightedRandom.getRandomItem(random, candidates);
+        return WeightedRandom.getRandomItem(random, candidates).map(WeightedRecipeHolder::recipeHolder);
     }
 
-    private static boolean isValidRecipeFor(FishingSpotRecipe recipe, ServerLevel level, BlockPos pos) {
+    private static boolean isValidRecipeFor(RecipeHolder<FishingSpotRecipe> recipe, ServerLevel level, BlockPos pos) {
         final var context = new EventContextImpl(level, pos, level.getBlockState(pos));
-        return recipe.eventCondition().test(context);
+        return recipe.value().eventCondition().test(context);
     }
 
-    private static Optional<FishingSpotRecipe> recipeById(ServerLevel level, @Nullable ResourceLocation recipeId) {
+    @SuppressWarnings("unchecked")
+    private static Optional<RecipeHolder<FishingSpotRecipe>> recipeById(ServerLevel level, @Nullable ResourceLocation recipeId) {
         final var recipeManager = level.getRecipeManager();
         if (recipeId == null) {
             return Optional.empty();
         }
-        final var recipe = recipeManager.byKey(recipeId).orElse(null);
-        if (recipe instanceof FishingSpotRecipe fishingSpotRecipe) {
-            return Optional.of(fishingSpotRecipe);
+        final var recipeHolder = recipeManager.byKey(recipeId).orElse(null);
+        if (recipeHolder != null && recipeHolder.value() instanceof FishingSpotRecipe) {
+            return Optional.of((RecipeHolder<FishingSpotRecipe>) recipeHolder);
         }
         return Optional.empty();
     }
 
-    public static Optional<FishingSpotRecipe> resolveRecipe(ServerLevel level, BlockPos pos, @Nullable ResourceLocation recipeId) {
+    public static Optional<RecipeHolder<FishingSpotRecipe>> resolveRecipe(ServerLevel level, BlockPos pos, @Nullable ResourceLocation recipeId) {
         final var optRecipe = FishingSpotHandler.recipeById(level, recipeId);
         if (optRecipe.isPresent() && FishingSpotHandler.isValidRecipeFor(optRecipe.get(), level, pos)) {
             return optRecipe;

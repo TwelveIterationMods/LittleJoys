@@ -1,5 +1,6 @@
 package net.blay09.mods.littlejoys.block;
 
+import com.mojang.serialization.MapCodec;
 import net.blay09.mods.littlejoys.block.entity.DigSpotBlockEntity;
 import net.blay09.mods.littlejoys.particle.ModParticles;
 import net.minecraft.core.BlockPos;
@@ -9,10 +10,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -21,6 +19,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class DigSpotBlock extends BaseEntityBlock {
+
+    public static final MapCodec<DigSpotBlock> CODEC = simpleCodec(DigSpotBlock::new);
 
     private static final VoxelShape SHAPE = Shapes.empty();
 
@@ -68,5 +68,10 @@ public class DigSpotBlock extends BaseEntityBlock {
             final var offsetZ = 0.1f - random.nextFloat() * 0.2f;
             level.addParticle(ModParticles.goldRush, x + offsetX, y, z + offsetZ, 0f, 0f, 0f);
         }
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 }

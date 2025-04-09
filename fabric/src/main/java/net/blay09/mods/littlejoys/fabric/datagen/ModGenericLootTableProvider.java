@@ -2,6 +2,9 @@ package net.blay09.mods.littlejoys.fabric.datagen;
 
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.SimpleFabricLootTableProvider;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -12,18 +15,20 @@ import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.function.BiConsumer;
 
 import static net.blay09.mods.littlejoys.LittleJoys.id;
 
 public class ModGenericLootTableProvider extends SimpleFabricLootTableProvider {
-    public ModGenericLootTableProvider(FabricDataOutput output) {
-        super(output, LootContextParamSets.ALL_PARAMS);
+
+    public ModGenericLootTableProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registryLookup) {
+        super(output, registryLookup, LootContextParamSets.ALL_PARAMS);
     }
 
     @Override
-    public void generate(BiConsumer<ResourceLocation, LootTable.Builder> output) {
-        output.accept(id("fishing_spot/water"), LootTable.lootTable()
+    public void generate(BiConsumer<ResourceKey<LootTable>, LootTable.Builder> output) {
+        output.accept(key(id("fishing_spot/water")), LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .add(LootItem.lootTableItem(Items.NAUTILUS_SHELL).setWeight(5))
                         .add(LootItem.lootTableItem(Items.PUFFERFISH).setWeight(4))
@@ -31,7 +36,7 @@ public class ModGenericLootTableProvider extends SimpleFabricLootTableProvider {
                                 .setWeight(4)
                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 4))))
                         .add(LootItem.lootTableItem(Items.ECHO_SHARD).setWeight(2))
-                        .add(LootItem.lootTableItem(Items.SCUTE).setWeight(2))
+                        .add(LootItem.lootTableItem(Items.TURTLE_SCUTE).setWeight(2))
                         .add(LootItem.lootTableItem(Items.HEART_OF_THE_SEA).setWeight(1))
                 )
                 .withPool(LootPool.lootPool()
@@ -47,143 +52,147 @@ public class ModGenericLootTableProvider extends SimpleFabricLootTableProvider {
                 )
         );
 
-        output.accept(id("drop_rush/sweet_berry_bush"), LootTable.lootTable()
+        output.accept(key(id("drop_rush/sweet_berry_bush")), LootTable.lootTable()
                 .withPool(LootPool.lootPool()
                         .add(LootItem.lootTableItem(Items.SWEET_BERRIES)
                                 .apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 3))))
                 )
         );
 
-        output.accept(id("dig_spot/basalt"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/basalt")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(netherDigSpot())
         );
 
-        output.accept(id("dig_spot/blackstone"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/blackstone")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(netherDigSpot())
         );
 
-        output.accept(id("dig_spot/bone_block"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/bone_block")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(LootPool.lootPool()
                         .add(LootItem.lootTableItem(Items.BONE).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 4)))))
         );
 
-        output.accept(id("dig_spot/clay"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/clay")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/crimson_nylium"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/crimson_nylium")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(netherDigSpot())
         );
 
-        output.accept(id("dig_spot/dirt"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/dirt")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/end_stone"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/end_stone")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(endDigSpot())
         );
 
-        output.accept(id("dig_spot/grass_block"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/grass_block")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/gravel"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/gravel")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/ice"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/ice")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/magma_block"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/magma_block")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(netherDigSpot())
         );
 
-        output.accept(id("dig_spot/moss_block"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/moss_block")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/mud"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/mud")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/mycelium"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/mycelium")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/netherrack"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/netherrack")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(netherDigSpot())
         );
 
-        output.accept(id("dig_spot/podzol"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/podzol")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/red_sand"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/red_sand")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/red_sandstone"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/red_sandstone")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/sand"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/sand")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/sandstone"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/sandstone")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/snow_block"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/snow_block")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/soul_sand"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/soul_sand")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(netherDigSpot())
         );
 
-        output.accept(id("dig_spot/soul_soil"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/soul_soil")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(netherDigSpot())
         );
 
-        output.accept(id("dig_spot/stone"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/stone")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/terracotta"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/terracotta")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(overworldDigSpot())
         );
 
-        output.accept(id("dig_spot/warped_nylium"), LootTable.lootTable()
+        output.accept(key(id("dig_spot/warped_nylium")), LootTable.lootTable()
                 .withPool(genericDigSpot())
                 .withPool(netherDigSpot())
         );
+    }
+
+    private static ResourceKey<LootTable> key(ResourceLocation id) {
+        return ResourceKey.create(Registries.LOOT_TABLE, id);
     }
 
     private static LootPool.Builder genericDigSpot() {
@@ -196,7 +205,7 @@ public class ModGenericLootTableProvider extends SimpleFabricLootTableProvider {
 
     private static LootPool.Builder overworldDigSpot() {
         return LootPool.lootPool()
-                .add(LootItem.lootTableItem(Items.IRON_ORE).setWeight(2).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
+                .add(LootItem.lootTableItem(Items.RAW_IRON).setWeight(2).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 6))))
                 .add(LootItem.lootTableItem(Items.BONE).setWeight(2).apply(SetItemCountFunction.setCount(UniformGenerator.between(1, 4))))
                 .add(LootItem.lootTableItem(Items.ENDER_PEARL))
                 .add(LootItem.lootTableItem(Items.CARROT).setWeight(1).apply(SetItemCountFunction.setCount(UniformGenerator.between(2, 4))))
@@ -217,4 +226,5 @@ public class ModGenericLootTableProvider extends SimpleFabricLootTableProvider {
                 .add(LootItem.lootTableItem(Items.CHORUS_FRUIT).setWeight(2).apply(SetItemCountFunction.setCount(UniformGenerator.between(3, 5))))
                 .add(LootItem.lootTableItem(Items.SHULKER_SHELL));
     }
+
 }

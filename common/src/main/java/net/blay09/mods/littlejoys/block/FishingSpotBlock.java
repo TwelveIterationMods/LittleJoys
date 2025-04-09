@@ -1,5 +1,6 @@
 package net.blay09.mods.littlejoys.block;
 
+import com.mojang.serialization.MapCodec;
 import net.blay09.mods.littlejoys.block.entity.FishingSpotBlockEntity;
 import net.blay09.mods.littlejoys.particle.ModParticles;
 import net.minecraft.core.BlockPos;
@@ -20,6 +21,8 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 public class FishingSpotBlock extends BaseEntityBlock {
+
+    public static final MapCodec<FishingSpotBlock> CODEC = simpleCodec(FishingSpotBlock::new);
 
     private static final VoxelShape SHAPE = Shapes.empty();
 
@@ -61,5 +64,10 @@ public class FishingSpotBlock extends BaseEntityBlock {
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new FishingSpotBlockEntity(pos, state);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 }

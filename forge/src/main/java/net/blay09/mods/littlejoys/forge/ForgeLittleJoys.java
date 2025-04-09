@@ -1,6 +1,7 @@
 package net.blay09.mods.littlejoys.forge;
 
 import net.blay09.mods.balm.api.Balm;
+import net.blay09.mods.balm.api.EmptyLoadContext;
 import net.blay09.mods.balm.api.client.BalmClient;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
@@ -13,8 +14,8 @@ import net.blay09.mods.littlejoys.client.LittleJoysClient;
 public class ForgeLittleJoys {
 
     public ForgeLittleJoys(FMLJavaModLoadingContext context) {
-        Balm.initialize(LittleJoys.MOD_ID, LittleJoys::initialize);
-        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> BalmClient.initialize(LittleJoys.MOD_ID, LittleJoysClient::initialize));
+        Balm.initialize(LittleJoys.MOD_ID, EmptyLoadContext.INSTANCE, LittleJoys::initialize);
+        DistExecutor.runWhenOn(Dist.CLIENT, () -> () -> BalmClient.initialize(LittleJoys.MOD_ID, EmptyLoadContext.INSTANCE, LittleJoysClient::initialize));
     }
 
 }

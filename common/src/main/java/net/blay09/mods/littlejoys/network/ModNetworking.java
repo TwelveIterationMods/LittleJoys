@@ -13,25 +13,25 @@ import static net.blay09.mods.littlejoys.LittleJoys.id;
 public class ModNetworking {
 
     public static void initialize(BalmNetworking networking) {
-        networking.registerClientboundPacket(id("gold_rush"),
+        networking.registerClientboundPacket(ClientboundGoldRushPacket.TYPE,
                 ClientboundGoldRushPacket.class,
                 ClientboundGoldRushPacket::encode,
                 ClientboundGoldRushPacket::decode,
                 ClientboundGoldRushPacket::handle);
 
-        networking.registerClientboundPacket(id("start_drop_rush"),
+        networking.registerClientboundPacket(ClientboundStartDropRushPacket.TYPE,
                 ClientboundStartDropRushPacket.class,
                 ClientboundStartDropRushPacket::encode,
                 ClientboundStartDropRushPacket::decode,
                 ClientboundStartDropRushPacket::handle);
 
-        networking.registerClientboundPacket(id("stop_drop_rush"),
+        networking.registerClientboundPacket(ClientboundStopDropRushPacket.TYPE,
                 ClientboundStopDropRushPacket.class,
                 ClientboundStopDropRushPacket::encode,
                 ClientboundStopDropRushPacket::decode,
                 ClientboundStopDropRushPacket::handle);
 
-        SyncConfigMessage.register(id("config"),
+        SyncConfigMessage.register(ClientboundConfigMessage.TYPE,
                 ClientboundConfigMessage.class,
                 ClientboundConfigMessage::new,
                 LittleJoysConfig.class,

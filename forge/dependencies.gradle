@@ -1,6 +1,6 @@
 dependencies {
-    modImplementation("net.blay09.mods:balm-forge:${balm_version}") {
+    implementation("net.blay09.mods:balm-forge:${balm_version}") {
         changing = balm_version.contains("SNAPSHOT")
     }
-    modImplementation("net.blay09.mods:kuma-api-forge:${kuma_version}")
+    implementation("net.blay09.mods:kuma-api-forge:${kuma_version}")
 }

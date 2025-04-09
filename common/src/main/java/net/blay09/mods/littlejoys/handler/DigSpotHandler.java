@@ -9,6 +9,7 @@ import net.blay09.mods.littlejoys.block.ModBlocks;
 import net.blay09.mods.littlejoys.block.entity.DigSpotBlockEntity;
 import net.blay09.mods.littlejoys.recipe.DigSpotRecipe;
 import net.blay09.mods.littlejoys.recipe.ModRecipeTypes;
+import net.blay09.mods.littlejoys.recipe.WeightedRecipeHolder;
 import net.blay09.mods.littlejoys.recipe.condition.EventContextImpl;
 import net.blay09.mods.littlejoys.stats.ModStats;
 import net.blay09.mods.littlejoys.tag.ModPoiTypeTags;
@@ -19,6 +20,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.jetbrains.annotations.Nullable;
 
@@ -59,10 +61,10 @@ public class DigSpotHandler {
                         return;
                     }
 
-                    findRecipe(level, aboveSurfacePos).ifPresentOrElse(recipe -> {
+                    findRecipe(level, aboveSurfacePos).ifPresentOrElse(recipeHolder -> {
                         level.setBlock(aboveSurfacePos, ModBlocks.digSpot.defaultBlockState(), 3);
                         if (level.getBlockEntity(aboveSurfacePos) instanceof DigSpotBlockEntity digSpot) {
-                            digSpot.setRecipeId(recipe.identifier());
+                            digSpot.setRecipeId(recipeHolder.id());
                         }
                         ChunkLimitManager.get(level).trackDigSpot(aboveSurfacePos);
                         littleJoysData.putInt(DIG_SPOT_COOLDOWN, Math.round(LittleJoysConfig.getActive().digSpots.spawnIntervalSeconds * 20));
@@ -95,21 +97,21 @@ public class DigSpotHandler {
         return bestPos;
     }
 
-    private static Optional<DigSpotRecipe> findRecipe(ServerLevel level, BlockPos pos) {
+    private static Optional<RecipeHolder<DigSpotRecipe>> findRecipe(ServerLevel level, BlockPos pos) {
         final var recipeManager = level.getRecipeManager();
         final var recipes = recipeManager.getAllRecipesFor(ModRecipeTypes.digSpotRecipeType);
-        final var candidates = new ArrayList<DigSpotRecipe>();
+        final var candidates = new ArrayList<WeightedRecipeHolder<DigSpotRecipe>>();
         for (final var recipe : recipes) {
             if (isValidRecipeFor(recipe, level, pos)) {
-                candidates.add(recipe);
+                candidates.add(new WeightedRecipeHolder<>(recipe));
             }
         }
-        return WeightedRandom.getRandomItem(random, candidates);
+        return WeightedRandom.getRandomItem(random, candidates).map(WeightedRecipeHolder::recipeHolder);
     }
 
-    private static boolean isValidRecipeFor(DigSpotRecipe recipe, ServerLevel level, BlockPos pos) {
+    private static boolean isValidRecipeFor(RecipeHolder<DigSpotRecipe> recipe, ServerLevel level, BlockPos pos) {
         final var context = new EventContextImpl(level, pos, level.getBlockState(pos));
-        return recipe.eventCondition().test(context);
+        return recipe.value().eventCondition().test(context);
     }
 
     public static Optional<DigSpotRecipe> recipeById(ServerLevel level, @Nullable ResourceLocation recipeId) {
@@ -117,8 +119,8 @@ public class DigSpotHandler {
         if (recipeId == null) {
             return Optional.empty();
         }
-        final var recipe = recipeManager.byKey(recipeId).orElse(null);
-        if (recipe instanceof DigSpotRecipe digSpotRecipe) {
+        final var recipeHolder = recipeManager.byKey(recipeId).orElse(null);
+        if (recipeHolder != null && recipeHolder.value() instanceof DigSpotRecipe digSpotRecipe) {
             return Optional.of(digSpotRecipe);
         }
         return Optional.empty();

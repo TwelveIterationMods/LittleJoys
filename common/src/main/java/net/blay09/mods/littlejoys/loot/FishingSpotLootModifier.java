@@ -34,10 +34,10 @@ public class FishingSpotLootModifier implements BalmLootModifier {
 
         final var fishingSpotPos = fishingSpotHolder.getFishingSpot();
         if (fishingSpotPos.isPresent() && level.getBlockEntity(fishingSpotPos.get()) instanceof FishingSpotBlockEntity fishingSpot) {
-            FishingSpotHandler.resolveRecipe(level, fishingSpotPos.get(), fishingSpot.getRecipeId()).ifPresent(recipe -> {
-                final var lootTableId = recipe.lootTable();
+            FishingSpotHandler.resolveRecipe(level, fishingSpotPos.get(), fishingSpot.getRecipeId()).ifPresent(recipeHolder -> {
+                final var lootTableId = recipeHolder.value().lootTable();
                 if (lootTableId != BuiltInLootTables.EMPTY) {
-                    final var lootTable = level.getServer().getLootData().getLootTable(lootTableId);
+                    final var lootTable = level.getServer().reloadableRegistries().getLootTable(lootTableId);
                     synchronized (activeContexts) {
                         activeContexts.add(context);
                     }

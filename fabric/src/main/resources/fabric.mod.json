@@ -15,7 +15,7 @@
   },
 
   "license": "${license}",
-  "icon": "${mod_id}-icon.png",
+  "icon": "${mod_id}.png",
 
   "environment": "*",
   "entrypoints": {

@@ -10,15 +10,19 @@ import net.blay09.mods.littlejoys.LittleJoysConfig;
 import net.blay09.mods.littlejoys.network.protocol.ClientboundGoldRushPacket;
 import net.blay09.mods.littlejoys.recipe.GoldRushRecipe;
 import net.blay09.mods.littlejoys.recipe.ModRecipeTypes;
+import net.blay09.mods.littlejoys.recipe.WeightedRecipeHolder;
 import net.blay09.mods.littlejoys.recipe.condition.EventContextImpl;
 import net.blay09.mods.littlejoys.stats.ModStats;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,7 +46,11 @@ public class GoldRushHandler {
                 return;
             }
 
-            if (EnchantmentHelper.hasSilkTouch(event.getPlayer().getMainHandItem())) {
+            final var hasSilkTouch = event.getLevel().registryAccess().registry(Registries.ENCHANTMENT)
+                    .flatMap(it -> it.getHolder(Enchantments.SILK_TOUCH))
+                    .map(it -> EnchantmentHelper.getEnchantmentLevel(it, event.getPlayer()) > 0)
+                    .orElse(false);
+            if (hasSilkTouch) {
                 return;
             }
 
@@ -55,7 +63,8 @@ public class GoldRushHandler {
             if (activeGoldRush == null) {
                 final var optRecipe = findRecipe(serverLevel, event.getPos(), event.getState());
                 if (optRecipe.isPresent()) {
-                    final var recipe = optRecipe.get();
+                    final var recipeHolder = optRecipe.get();
+                    final var recipe = recipeHolder.value();
                     activeGoldRush = new GoldRushInstance(event.getPos(),
                             event.getState(),
                             recipe.lootTable(),
@@ -77,7 +86,7 @@ public class GoldRushHandler {
                     if (lootTableId != BuiltInLootTables.EMPTY) {
                         final var lootParams = lootParamsBuilder.withParameter(LootContextParams.BLOCK_STATE, level.getBlockState(pos))
                                 .create(LootContextParamSets.BLOCK);
-                        final var lootTable = level.getServer().getLootData().getLootTable(lootTableId);
+                        final var lootTable = level.getServer().reloadableRegistries().getLootTable(lootTableId);
                         lootTable.getRandomItems(lootParams).forEach((itemStack) -> Block.popResource(level, pos, itemStack));
                     }
                     activeGoldRush.setDropCooldownTicks(activeGoldRush.getTicksPerDrop());
@@ -101,22 +110,22 @@ public class GoldRushHandler {
         });
     }
 
-    private static Optional<GoldRushRecipe> findRecipe(ServerLevel level, BlockPos pos, BlockState state) {
+    private static Optional<RecipeHolder<GoldRushRecipe>> findRecipe(ServerLevel level, BlockPos pos, BlockState state) {
         final var recipeManager = level.getRecipeManager();
         final var recipes = recipeManager.getAllRecipesFor(ModRecipeTypes.goldRushRecipeType);
-        final var candidates = new ArrayList<GoldRushRecipe>();
+        final var candidates = new ArrayList<WeightedRecipeHolder<GoldRushRecipe>>();
         final var baseChance = LittleJoysConfig.getActive().goldRush.baseChance;
         final var roll = random.nextFloat();
-        for (final var recipe : recipes) {
-            if (isValidRecipeFor(recipe, level, pos, state) && roll <= baseChance * recipe.chanceMultiplier()) {
-                candidates.add(recipe);
+        for (final var recipeHolder : recipes) {
+            if (isValidRecipeFor(recipeHolder, level, pos, state) && roll <= baseChance * recipeHolder.value().chanceMultiplier()) {
+                candidates.add(new WeightedRecipeHolder<>(recipeHolder));
             }
         }
-        return WeightedRandom.getRandomItem(random, candidates);
+        return WeightedRandom.getRandomItem(random, candidates).map(WeightedRecipeHolder::recipeHolder);
     }
 
-    private static boolean isValidRecipeFor(GoldRushRecipe recipe, ServerLevel level, BlockPos pos, BlockState state) {
+    private static boolean isValidRecipeFor(RecipeHolder<GoldRushRecipe> recipe, ServerLevel level, BlockPos pos, BlockState state) {
         final var context = new EventContextImpl(level, pos, state);
-        return recipe.eventCondition().test(context);
+        return recipe.value().eventCondition().test(context);
     }
 }

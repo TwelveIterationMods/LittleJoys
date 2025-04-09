@@ -1,34 +1,33 @@
 package net.blay09.mods.littlejoys.recipe;
 
-import com.google.gson.JsonObject;
-import com.mojang.serialization.JsonOps;
-import net.blay09.mods.littlejoys.LittleJoysConfig;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.blay09.mods.littlejoys.api.EventCondition;
 import net.blay09.mods.littlejoys.recipe.condition.EventConditionRegistry;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.util.random.Weight;
 import net.minecraft.util.random.WeightedEntry;
-import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.minecraft.world.level.storage.loot.LootTable;
 
-public record GoldRushRecipe(ResourceLocation identifier,
-                             EventCondition eventCondition,
+public record GoldRushRecipe(EventCondition eventCondition,
                              float chanceMultiplier,
-                             ResourceLocation lootTable,
+                             ResourceKey<LootTable> lootTable,
                              float seconds,
                              float maxDropsPerSecond,
-                             Weight weight) implements Recipe<Container>, WeightedEntry {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(GoldRushRecipe.class);
+                             Weight weight) implements Recipe<RecipeInput>, WeightedEntry {
 
     @Override
     public RecipeType<GoldRushRecipe> getType() {
@@ -36,12 +35,12 @@ public record GoldRushRecipe(ResourceLocation identifier,
     }
 
     @Override
-    public boolean matches(Container container, Level level) {
+    public boolean matches(RecipeInput recipeInput, Level level) {
         return false;
     }
 
     @Override
-    public ItemStack assemble(Container container, RegistryAccess registryAccess) {
+    public ItemStack assemble(RecipeInput recipeInput, HolderLookup.Provider provider) {
         return ItemStack.EMPTY;
     }
 
@@ -51,13 +50,8 @@ public record GoldRushRecipe(ResourceLocation identifier,
     }
 
     @Override
-    public ItemStack getResultItem(RegistryAccess registryAccess) {
+    public ItemStack getResultItem(HolderLookup.Provider provider) {
         return ItemStack.EMPTY;
-    }
-
-    @Override
-    public ResourceLocation getId() {
-        return identifier;
     }
 
     @Override
@@ -71,38 +65,45 @@ public record GoldRushRecipe(ResourceLocation identifier,
     }
 
     public static class Serializer implements RecipeSerializer<GoldRushRecipe> {
-        @Override
-        public GoldRushRecipe fromJson(ResourceLocation identifier, JsonObject jsonObject) {
-            final var eventCondition = EventConditionRegistry.CODEC.decode(JsonOps.INSTANCE, GsonHelper.getNonNull(jsonObject, "eventCondition"))
-                    .getOrThrow(false, LOGGER::error)
-                    .getFirst();
-            final var lootTable = new ResourceLocation(GsonHelper.getAsString(jsonObject, "lootTable"));
-            final var chanceMultiplier = GsonHelper.getAsFloat(jsonObject, "chanceMultiplier", 1f);
-            final var seconds = GsonHelper.getAsFloat(jsonObject, "seconds", 7f);
-            final var maxDropsPerSecond = GsonHelper.getAsFloat(jsonObject, "maxDropsPerSecond", -1);
-            final var weight = Weight.of(GsonHelper.getAsInt(jsonObject, "weight", 1));
-            return new GoldRushRecipe(identifier, eventCondition, chanceMultiplier, lootTable, seconds, maxDropsPerSecond, weight);
-        }
 
-        @Override
-        public GoldRushRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf buf) {
+        private static final MapCodec<GoldRushRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                EventConditionRegistry.CODEC.fieldOf("eventCondition").forGetter(GoldRushRecipe::eventCondition),
+                Codec.FLOAT.fieldOf("chanceMultiplier").orElse(1f).forGetter(GoldRushRecipe::chanceMultiplier),
+                ResourceKey.codec(Registries.LOOT_TABLE).fieldOf("lootTable").forGetter(GoldRushRecipe::lootTable),
+                Codec.FLOAT.fieldOf("seconds").orElse(7f).forGetter(GoldRushRecipe::seconds),
+                Codec.FLOAT.fieldOf("maxDropsPerSecond").orElse(-1f).forGetter(GoldRushRecipe::maxDropsPerSecond),
+                Weight.CODEC.fieldOf("weight").orElse(Weight.of(1)).forGetter(GoldRushRecipe::weight)
+        ).apply(instance, GoldRushRecipe::new));
+
+        private static final StreamCodec<RegistryFriendlyByteBuf, GoldRushRecipe> STREAM_CODEC = StreamCodec.of(Serializer::toNetwork, Serializer::fromNetwork);
+
+        private static GoldRushRecipe fromNetwork(FriendlyByteBuf buf) {
             final var eventCondition = EventConditionRegistry.conditionFromNetwork(buf);
             final var chanceMultiplier = buf.readFloat();
+            final var lootTable = buf.readResourceKey(Registries.LOOT_TABLE);
             final var seconds = buf.readFloat();
-            final var lootTable = buf.readResourceLocation();
             final var maxDropsPerSecond = buf.readFloat();
             final var weight = Weight.of(buf.readVarInt());
-            return new GoldRushRecipe(identifier, eventCondition, chanceMultiplier, lootTable, seconds, maxDropsPerSecond, weight);
+            return new GoldRushRecipe(eventCondition, chanceMultiplier, lootTable, seconds, maxDropsPerSecond, weight);
         }
 
-        @Override
-        public void toNetwork(FriendlyByteBuf buf, GoldRushRecipe recipe) {
+        private static void toNetwork(FriendlyByteBuf buf, GoldRushRecipe recipe) {
             EventConditionRegistry.conditionToNetwork(buf, recipe.eventCondition);
             buf.writeFloat(recipe.chanceMultiplier);
-            buf.writeResourceLocation(recipe.lootTable);
+            buf.writeResourceKey(recipe.lootTable);
             buf.writeFloat(recipe.seconds);
             buf.writeFloat(recipe.maxDropsPerSecond);
             buf.writeVarInt(recipe.weight.asInt());
+        }
+
+        @Override
+        public MapCodec<GoldRushRecipe> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, GoldRushRecipe> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 }

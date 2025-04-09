@@ -66,10 +66,10 @@ public record FluidIngredient(Value[] values) {
         if (json.has("fluid") && json.has("tag")) {
             throw new JsonParseException("A fluid ingredient entry is either a tag or a fluid, not both");
         } else if (json.has("fluid")) {
-            final var fluid = BuiltInRegistries.FLUID.get(new ResourceLocation(GsonHelper.getAsString(json, "fluid")));
+            final var fluid = BuiltInRegistries.FLUID.get(ResourceLocation.parse(GsonHelper.getAsString(json, "fluid")));
             return new FluidValue(fluid);
         } else if (json.has("tag")) {
-            final var tag = TagKey.create(Registries.FLUID, new ResourceLocation(GsonHelper.getAsString(json, "tag")));
+            final var tag = TagKey.create(Registries.FLUID, ResourceLocation.parse(GsonHelper.getAsString(json, "tag")));
             return new TagValue(tag);
         } else {
             throw new JsonParseException("A fluid ingredient entry needs either a tag or a fluid");

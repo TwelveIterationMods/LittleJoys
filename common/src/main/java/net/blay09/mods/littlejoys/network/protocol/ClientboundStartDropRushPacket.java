@@ -2,11 +2,16 @@ package net.blay09.mods.littlejoys.network.protocol;
 
 import net.blay09.mods.littlejoys.client.handler.DropRushClientHandler;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
 
-public record ClientboundStartDropRushPacket(int ticks) {
+import static net.blay09.mods.littlejoys.LittleJoys.id;
 
-    public static void encode(ClientboundStartDropRushPacket message, FriendlyByteBuf buf) {
+public record ClientboundStartDropRushPacket(int ticks) implements CustomPacketPayload {
+
+    public static final CustomPacketPayload.Type<ClientboundStartDropRushPacket> TYPE = new CustomPacketPayload.Type<>(id("start_drop_rush"));
+
+    public static void encode(FriendlyByteBuf buf, ClientboundStartDropRushPacket message) {
         buf.writeInt(message.ticks);
     }
 
@@ -18,4 +23,8 @@ public record ClientboundStartDropRushPacket(int ticks) {
         DropRushClientHandler.startDropRush(message.ticks);
     }
 
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return TYPE;
+    }
 }

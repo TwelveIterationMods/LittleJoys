@@ -18,7 +18,7 @@ public class EventConditionRegistry {
     private static final BiMap<ResourceLocation, EventConditionType<? extends EventCondition>> TYPES = HashBiMap.create();
 
     public static final Codec<EventConditionType<? extends EventCondition>> BY_NAME_CODEC = byNameCodec();
-    public static final Codec<EventCondition> CODEC = BY_NAME_CODEC.dispatch(it -> getType(it.getClass()), EventConditionType::codec);
+    public static final Codec<EventCondition> CODEC = BY_NAME_CODEC.dispatch(it -> getType(it.getClass()), EventConditionType::mapCodec);
     public static final Codec<List<EventCondition>> LIST_CODEC = CODEC.listOf();
 
     public record EventConditionType<T extends EventCondition>(ResourceLocation identifier, MapCodec<T> mapCodec,

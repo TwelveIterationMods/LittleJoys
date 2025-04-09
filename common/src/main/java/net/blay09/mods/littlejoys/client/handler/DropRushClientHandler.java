@@ -61,8 +61,8 @@ public class DropRushClientHandler {
     public static void stopDropRush(ClientboundStopDropRushPacket.Reason reason) {
         final var minecraft = Minecraft.getInstance();
         dropRushActive = false;
-        minecraft.getSoundManager().stop(new ResourceLocation(LittleJoys.MOD_ID, "drop_rush"), SoundSource.PLAYERS);
-        minecraft.getSoundManager().stop(new ResourceLocation(LittleJoys.MOD_ID, "drop_rush_stop"), SoundSource.PLAYERS);
+        minecraft.getSoundManager().stop(ResourceLocation.fromNamespaceAndPath(LittleJoys.MOD_ID, "drop_rush"), SoundSource.PLAYERS);
+        minecraft.getSoundManager().stop(ResourceLocation.fromNamespaceAndPath(LittleJoys.MOD_ID, "drop_rush_stop"), SoundSource.PLAYERS);
         if (reason == ClientboundStopDropRushPacket.Reason.FULL_CLEAR) {
             minecraft.level.playSound(minecraft.player, minecraft.player, SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 1f);
         }
