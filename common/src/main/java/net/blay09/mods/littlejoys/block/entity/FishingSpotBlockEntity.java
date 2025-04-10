@@ -5,9 +5,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -21,16 +19,12 @@ public class FishingSpotBlockEntity extends BalmBlockEntity {
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        if (recipeId != null) {
-            tag.putString("recipe", recipeId.toString());
-        }
+        tag.storeNullable("recipe", ResourceKey.codec(Registries.RECIPE), recipeId);
     }
 
     @Override
-    public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        if (tag.contains("recipe", Tag.TAG_STRING)) {
-            recipeId = ResourceKey.create(Registries.RECIPE, ResourceLocation.parse(tag.getString("recipe")));
-        }
+    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
+        recipeId = tag.read("recipe", ResourceKey.codec(Registries.RECIPE)).orElse(null);
     }
 
     public ResourceKey<Recipe<?>> getRecipeId() {

@@ -11,16 +11,12 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.random.Weight;
-import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.LootTable;
 
-public record DropRushRecipe(EventCondition eventCondition, float chanceMultiplier, ResourceKey<LootTable> lootTable, int rolls, float seconds, int range,
-                             Weight weight) implements Recipe<RecipeInput>, WeightedEntry {
+public record DropRushRecipe(EventCondition eventCondition, float chanceMultiplier, ResourceKey<LootTable> lootTable, int rolls, float seconds, int range, int weight) implements Recipe<RecipeInput> {
 
     @Override
     public RecipeType<DropRushRecipe> getType() {
@@ -52,11 +48,6 @@ public record DropRushRecipe(EventCondition eventCondition, float chanceMultipli
         return ModRecipeTypes.dropRushRecipeSerializer;
     }
 
-    @Override
-    public Weight getWeight() {
-        return weight;
-    }
-
     public static class Serializer implements RecipeSerializer<DropRushRecipe> {
 
         private static final MapCodec<DropRushRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -66,7 +57,7 @@ public record DropRushRecipe(EventCondition eventCondition, float chanceMultipli
                 Codec.INT.fieldOf("rolls").orElse(8).forGetter(DropRushRecipe::rolls),
                 Codec.FLOAT.fieldOf("seconds").orElse(12.5f).forGetter(DropRushRecipe::seconds),
                 Codec.INT.fieldOf("range").orElse(8).forGetter(DropRushRecipe::range),
-                Weight.CODEC.fieldOf("weight").orElse(Weight.of(1)).forGetter(DropRushRecipe::weight)
+                Codec.INT.fieldOf("weight").orElse(1).forGetter(DropRushRecipe::weight)
         ).apply(instance, DropRushRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, DropRushRecipe> STREAM_CODEC = StreamCodec.of(Serializer::toNetwork, Serializer::fromNetwork);
@@ -78,7 +69,7 @@ public record DropRushRecipe(EventCondition eventCondition, float chanceMultipli
             final var rolls = buf.readVarInt();
             final var seconds = buf.readFloat();
             final var range = buf.readVarInt();
-            final var weight = Weight.of(buf.readVarInt());
+            final var weight = buf.readVarInt();
             return new DropRushRecipe(eventCondition, chance, lootTable, rolls, seconds, range, weight);
         }
 
@@ -89,7 +80,7 @@ public record DropRushRecipe(EventCondition eventCondition, float chanceMultipli
             buf.writeVarInt(recipe.rolls);
             buf.writeFloat(recipe.seconds);
             buf.writeVarInt(recipe.range);
-            buf.writeVarInt(recipe.weight.asInt());
+            buf.writeVarInt(recipe.weight);
         }
 
         @Override

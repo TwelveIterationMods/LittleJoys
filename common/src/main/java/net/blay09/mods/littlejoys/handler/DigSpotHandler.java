@@ -10,7 +10,6 @@ import net.blay09.mods.littlejoys.block.entity.DigSpotBlockEntity;
 import net.blay09.mods.littlejoys.mixin.RecipeManagerAccessor;
 import net.blay09.mods.littlejoys.recipe.DigSpotRecipe;
 import net.blay09.mods.littlejoys.recipe.ModRecipeTypes;
-import net.blay09.mods.littlejoys.recipe.WeightedRecipeHolder;
 import net.blay09.mods.littlejoys.recipe.condition.EventContextImpl;
 import net.blay09.mods.littlejoys.stats.ModStats;
 import net.blay09.mods.littlejoys.tag.ModPoiTypeTags;
@@ -37,9 +36,9 @@ public class DigSpotHandler {
     public static void initialize() {
         Balm.getEvents().onTickEvent(TickType.ServerPlayer, TickPhase.End, (player) -> {
             final var playerData = Balm.getHooks().getPersistentData(player);
-            final var littleJoysData = playerData.getCompound(LittleJoys.MOD_ID);
+            final var littleJoysData = playerData.getCompoundOrEmpty(LittleJoys.MOD_ID);
             playerData.put(LittleJoys.MOD_ID, littleJoysData);
-            final var cooldown = littleJoysData.getInt(DIG_SPOT_COOLDOWN);
+            final var cooldown = littleJoysData.getIntOr(DIG_SPOT_COOLDOWN, 0);
             if (cooldown > 0) {
                 littleJoysData.putInt(DIG_SPOT_COOLDOWN, cooldown - 1);
             } else {
@@ -103,13 +102,13 @@ public class DigSpotHandler {
         final var recipeManager = level.getServer().getRecipeManager();
         final var recipeMap = ((RecipeManagerAccessor) recipeManager).getRecipes();
         final var recipes = recipeMap.byType(ModRecipeTypes.digSpotRecipeType);
-        final var candidates = new ArrayList<WeightedRecipeHolder<DigSpotRecipe>>();
+        final var candidates = new ArrayList<RecipeHolder<DigSpotRecipe>>();
         for (final var recipe : recipes) {
             if (isValidRecipeFor(recipe, level, pos)) {
-                candidates.add(new WeightedRecipeHolder<>(recipe));
+                candidates.add(recipe);
             }
         }
-        return WeightedRandom.getRandomItem(random, candidates).map(WeightedRecipeHolder::recipeHolder);
+        return WeightedRandom.getRandomItem(random, candidates, it -> it.value().weight());
     }
 
     private static boolean isValidRecipeFor(RecipeHolder<DigSpotRecipe> recipe, ServerLevel level, BlockPos pos) {
@@ -131,7 +130,7 @@ public class DigSpotHandler {
 
     public static void digSpotConsumed(Player player) {
         final var playerData = Balm.getHooks().getPersistentData(player);
-        final var littleJoysData = playerData.getCompound(LittleJoys.MOD_ID);
+        final var littleJoysData = playerData.getCompoundOrEmpty(LittleJoys.MOD_ID);
         playerData.put(LittleJoys.MOD_ID, littleJoysData);
         littleJoysData.putInt(DIG_SPOT_COOLDOWN, Math.round(LittleJoysConfig.getActive().digSpots.afterDiggingCooldownSeconds * 20));
 

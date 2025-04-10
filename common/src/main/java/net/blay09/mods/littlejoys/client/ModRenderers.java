@@ -4,11 +4,12 @@ import net.blay09.mods.balm.api.client.rendering.BalmRenderers;
 import net.blay09.mods.littlejoys.client.entity.DropRushItemRenderer;
 import net.blay09.mods.littlejoys.entity.ModEntities;
 import net.blay09.mods.littlejoys.particle.ModParticles;
-import net.minecraft.client.particle.BubbleParticle;
 import net.minecraft.client.particle.SuspendedTownParticle;
 import net.minecraft.client.renderer.RenderType;
 import net.blay09.mods.littlejoys.block.ModBlocks;
 import net.minecraft.world.entity.EntityType;
+
+import static net.blay09.mods.littlejoys.LittleJoys.id;
 
 public class ModRenderers {
 
@@ -17,9 +18,9 @@ public class ModRenderers {
         renderers.setBlockRenderType(() -> ModBlocks.digSpot, RenderType.cutout());
         renderers.setBlockRenderType(() -> ModBlocks.fishingSpot, RenderType.cutout());
 
-        renderers.registerEntityRenderer(() -> (EntityType) ModEntities.dropRushItem.get(), DropRushItemRenderer::new);
+        renderers.registerEntityRenderer(id("drop_rush_item"), () -> (EntityType) ModEntities.dropRushItem.get(), DropRushItemRenderer::new);
 
-        renderers.registerParticleProvider(() -> ModParticles.goldRush, SuspendedTownParticle.HappyVillagerProvider::new);
-        renderers.registerParticleProvider(() -> ModParticles.fishingSpot, SuspendedTownParticle.HappyVillagerProvider::new);
+        renderers.registerParticleProvider(id("gold_rush"), () -> ModParticles.goldRush, SuspendedTownParticle.HappyVillagerProvider::new);
+        renderers.registerParticleProvider(id("fishing_spot"), () -> ModParticles.fishingSpot, SuspendedTownParticle.HappyVillagerProvider::new);
     }
 }

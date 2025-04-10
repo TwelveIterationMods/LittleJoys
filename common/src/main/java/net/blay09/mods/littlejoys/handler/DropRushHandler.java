@@ -13,7 +13,6 @@ import net.blay09.mods.littlejoys.network.protocol.ClientboundStartDropRushPacke
 import net.blay09.mods.littlejoys.network.protocol.ClientboundStopDropRushPacket;
 import net.blay09.mods.littlejoys.recipe.DropRushRecipe;
 import net.blay09.mods.littlejoys.recipe.ModRecipeTypes;
-import net.blay09.mods.littlejoys.recipe.WeightedRecipeHolder;
 import net.blay09.mods.littlejoys.recipe.condition.EventContextImpl;
 import net.blay09.mods.littlejoys.stats.ModStats;
 import net.minecraft.core.BlockPos;
@@ -145,15 +144,15 @@ public class DropRushHandler {
         final var recipeManager = level.getServer().getRecipeManager();
         final var recipeMap = ((RecipeManagerAccessor) recipeManager).getRecipes();
         final var recipes = recipeMap.byType(ModRecipeTypes.dropRushRecipeType);
-        final var candidates = new ArrayList<WeightedRecipeHolder<DropRushRecipe>>();
+        final var candidates = new ArrayList<RecipeHolder<DropRushRecipe>>();
         final var baseChance = LittleJoysConfig.getActive().dropRush.baseChance;
         final var roll = random.nextFloat();
         for (final var recipeHolder : recipes) {
             if (isValidRecipeFor(recipeHolder, level, pos, state) && roll <= baseChance * recipeHolder.value().chanceMultiplier()) {
-                candidates.add(new WeightedRecipeHolder<>(recipeHolder));
+                candidates.add(recipeHolder);
             }
         }
-        return WeightedRandom.getRandomItem(random, candidates).map(WeightedRecipeHolder::recipeHolder);
+        return WeightedRandom.getRandomItem(random, candidates, it -> it.value().weight());
     }
 
     private static boolean isValidRecipeFor(RecipeHolder<DropRushRecipe> recipe, ServerLevel level, BlockPos pos, BlockState state) {

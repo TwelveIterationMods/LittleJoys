@@ -1,20 +1,18 @@
 package net.blay09.mods.littlejoys;
 
 import net.blay09.mods.balm.api.Balm;
-import net.blay09.mods.balm.api.config.BalmConfigData;
-import net.blay09.mods.balm.api.config.Comment;
-import net.blay09.mods.balm.api.config.Config;
-import net.blay09.mods.littlejoys.network.protocol.ClientboundConfigMessage;
+import net.blay09.mods.balm.api.config.reflection.Comment;
+import net.blay09.mods.balm.api.config.reflection.Config;
 
 @Config(LittleJoys.MOD_ID)
-public class LittleJoysConfig implements BalmConfigData {
+public class LittleJoysConfig {
 
     public static void initialize() {
-        Balm.getConfig().registerConfig(LittleJoysConfig.class, ClientboundConfigMessage::new);
+        Balm.getConfig().registerConfig(LittleJoysConfig.class);
     }
 
     public static LittleJoysConfig getActive() {
-        return Balm.getConfig().getActive(LittleJoysConfig.class);
+        return Balm.getConfig().getActiveConfig(LittleJoysConfig.class);
     }
 
     public DropRush dropRush = new DropRush();

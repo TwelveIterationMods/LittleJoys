@@ -11,7 +11,6 @@ import net.blay09.mods.littlejoys.mixin.RecipeManagerAccessor;
 import net.blay09.mods.littlejoys.particle.ModParticles;
 import net.blay09.mods.littlejoys.recipe.FishingSpotRecipe;
 import net.blay09.mods.littlejoys.recipe.ModRecipeTypes;
-import net.blay09.mods.littlejoys.recipe.WeightedRecipeHolder;
 import net.blay09.mods.littlejoys.recipe.condition.EventContextImpl;
 import net.blay09.mods.littlejoys.stats.ModStats;
 import net.blay09.mods.littlejoys.tag.ModPoiTypeTags;
@@ -40,9 +39,9 @@ public class FishingSpotHandler {
     public static void initialize() {
         Balm.getEvents().onTickEvent(TickType.ServerPlayer, TickPhase.End, (player) -> {
             final var playerData = Balm.getHooks().getPersistentData(player);
-            final var littleJoysData = playerData.getCompound(LittleJoys.MOD_ID);
+            final var littleJoysData = playerData.getCompoundOrEmpty(LittleJoys.MOD_ID);
             playerData.put(LittleJoys.MOD_ID, littleJoysData);
-            final var cooldown = littleJoysData.getInt(FISHING_SPOT_COOLDOWN);
+            final var cooldown = littleJoysData.getIntOr(FISHING_SPOT_COOLDOWN, 0);
             if (cooldown > 0) {
                 littleJoysData.putInt(FISHING_SPOT_COOLDOWN, cooldown - 1);
             } else {
@@ -95,13 +94,13 @@ public class FishingSpotHandler {
         final var recipeManager = level.getServer().getRecipeManager();
         final var recipeMap = ((RecipeManagerAccessor) recipeManager).getRecipes();
         final var recipes = recipeMap.byType(ModRecipeTypes.fishingSpotRecipeType);
-        final var candidates = new ArrayList<WeightedRecipeHolder<FishingSpotRecipe>>();
+        final var candidates = new ArrayList<RecipeHolder<FishingSpotRecipe>>();
         for (final var recipe : recipes) {
             if (isValidRecipeFor(recipe, level, pos)) {
-                candidates.add(new WeightedRecipeHolder<>(recipe));
+                candidates.add(recipe);
             }
         }
-        return WeightedRandom.getRandomItem(random, candidates).map(WeightedRecipeHolder::recipeHolder);
+        return WeightedRandom.getRandomItem(random, candidates, it -> it.value().weight());
     }
 
     private static boolean isValidRecipeFor(RecipeHolder<FishingSpotRecipe> recipe, ServerLevel level, BlockPos pos) {
@@ -164,7 +163,7 @@ public class FishingSpotHandler {
             player.awardStat(ModStats.fishingSpotsFished);
 
             final var playerData = Balm.getHooks().getPersistentData(player);
-            final var littleJoysData = playerData.getCompound(LittleJoys.MOD_ID);
+            final var littleJoysData = playerData.getCompoundOrEmpty(LittleJoys.MOD_ID);
             playerData.put(LittleJoys.MOD_ID, littleJoysData);
             littleJoysData.putInt(FISHING_SPOT_COOLDOWN, Math.round(LittleJoysConfig.getActive().fishingSpots.afterFishingCooldownSeconds * 20));
         }

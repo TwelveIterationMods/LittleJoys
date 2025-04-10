@@ -2,28 +2,27 @@ package net.blay09.mods.littlejoys.entity;
 
 import net.blay09.mods.balm.api.Balm;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 
 public class DropRushItemEntity extends ItemEntity {
 
+    private static final EntityDataAccessor<CompoundTag> DATA_TARGET = SynchedEntityData.defineId(DropRushItemEntity.class, EntityDataSerializers.COMPOUND_TAG);
     private int ticksPassed;
     private int actualLifetime = 6000;
     private boolean pickedUp;
-
-    private static final EntityDataAccessor<Optional<UUID>> DATA_TARGET = SynchedEntityData.defineId(DropRushItemEntity.class,
-            EntityDataSerializers.OPTIONAL_UUID);
 
     public DropRushItemEntity(EntityType<? extends ItemEntity> entityType, Level level) {
         super(entityType, level);
@@ -87,23 +86,17 @@ public class DropRushItemEntity extends ItemEntity {
     }
 
     @Override
-    public void setTarget(@Nullable UUID target) {
-        super.setTarget(target);
-        getEntityData().set(DATA_TARGET, Optional.ofNullable(target));
-    }
-
-    @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> key) {
         super.onSyncedDataUpdated(key);
         if (key == DATA_TARGET) {
-            getEntityData().get(DATA_TARGET).ifPresent(this::setTarget);
+            getEntityData().get(DATA_TARGET).read("Target", UUIDUtil.CODEC).ifPresent(this::setTarget);
         }
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(DATA_TARGET, Optional.empty());
+        builder.define(DATA_TARGET, new CompoundTag());
     }
 
     @Override
@@ -119,7 +112,15 @@ public class DropRushItemEntity extends ItemEntity {
 
     @Nullable
     public UUID getTarget() {
-        return getEntityData().get(DATA_TARGET).orElse(null);
+        return getEntityData().get(DATA_TARGET).read("Target", UUIDUtil.CODEC).orElse(null);
+    }
+
+    @Override
+    public void setTarget(@Nullable UUID target) {
+        super.setTarget(target);
+        CompoundTag compoundTag = new CompoundTag();
+        compoundTag.storeNullable("Target", UUIDUtil.CODEC, target);
+        getEntityData().set(DATA_TARGET, compoundTag);
     }
 
     @Override

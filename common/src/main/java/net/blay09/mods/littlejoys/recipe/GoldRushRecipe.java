@@ -11,9 +11,6 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.random.Weight;
-import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
@@ -24,7 +21,7 @@ public record GoldRushRecipe(EventCondition eventCondition,
                              ResourceKey<LootTable> lootTable,
                              float seconds,
                              float maxDropsPerSecond,
-                             Weight weight) implements Recipe<RecipeInput>, WeightedEntry {
+                             int weight) implements Recipe<RecipeInput> {
 
     @Override
     public RecipeType<GoldRushRecipe> getType() {
@@ -56,11 +53,6 @@ public record GoldRushRecipe(EventCondition eventCondition,
         return ModRecipeTypes.goldRushRecipeSerializer;
     }
 
-    @Override
-    public Weight getWeight() {
-        return weight;
-    }
-
     public static class Serializer implements RecipeSerializer<GoldRushRecipe> {
 
         private static final MapCodec<GoldRushRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -69,7 +61,7 @@ public record GoldRushRecipe(EventCondition eventCondition,
                 ResourceKey.codec(Registries.LOOT_TABLE).fieldOf("lootTable").forGetter(GoldRushRecipe::lootTable),
                 Codec.FLOAT.fieldOf("seconds").orElse(7f).forGetter(GoldRushRecipe::seconds),
                 Codec.FLOAT.fieldOf("maxDropsPerSecond").orElse(-1f).forGetter(GoldRushRecipe::maxDropsPerSecond),
-                Weight.CODEC.fieldOf("weight").orElse(Weight.of(1)).forGetter(GoldRushRecipe::weight)
+                Codec.INT.fieldOf("weight").orElse(1).forGetter(GoldRushRecipe::weight)
         ).apply(instance, GoldRushRecipe::new));
 
         private static final StreamCodec<RegistryFriendlyByteBuf, GoldRushRecipe> STREAM_CODEC = StreamCodec.of(Serializer::toNetwork, Serializer::fromNetwork);
@@ -80,7 +72,7 @@ public record GoldRushRecipe(EventCondition eventCondition,
             final var lootTable = buf.readResourceKey(Registries.LOOT_TABLE);
             final var seconds = buf.readFloat();
             final var maxDropsPerSecond = buf.readFloat();
-            final var weight = Weight.of(buf.readVarInt());
+            final var weight = buf.readVarInt();
             return new GoldRushRecipe(eventCondition, chanceMultiplier, lootTable, seconds, maxDropsPerSecond, weight);
         }
 
@@ -90,7 +82,7 @@ public record GoldRushRecipe(EventCondition eventCondition,
             buf.writeResourceKey(recipe.lootTable);
             buf.writeFloat(recipe.seconds);
             buf.writeFloat(recipe.maxDropsPerSecond);
-            buf.writeVarInt(recipe.weight.asInt());
+            buf.writeVarInt(recipe.weight);
         }
 
         @Override

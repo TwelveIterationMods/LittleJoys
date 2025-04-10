@@ -11,7 +11,6 @@ import net.blay09.mods.littlejoys.mixin.RecipeManagerAccessor;
 import net.blay09.mods.littlejoys.network.protocol.ClientboundGoldRushPacket;
 import net.blay09.mods.littlejoys.recipe.GoldRushRecipe;
 import net.blay09.mods.littlejoys.recipe.ModRecipeTypes;
-import net.blay09.mods.littlejoys.recipe.WeightedRecipeHolder;
 import net.blay09.mods.littlejoys.recipe.condition.EventContextImpl;
 import net.blay09.mods.littlejoys.stats.ModStats;
 import net.minecraft.core.BlockPos;
@@ -114,15 +113,15 @@ public class GoldRushHandler {
         final var recipeManager = level.getServer().getRecipeManager();
         final var recipeMap = ((RecipeManagerAccessor) recipeManager).getRecipes();
         final var recipes = recipeMap.byType(ModRecipeTypes.goldRushRecipeType);
-        final var candidates = new ArrayList<WeightedRecipeHolder<GoldRushRecipe>>();
+        final var candidates = new ArrayList<RecipeHolder<GoldRushRecipe>>();
         final var baseChance = LittleJoysConfig.getActive().goldRush.baseChance;
         final var roll = random.nextFloat();
         for (final var recipeHolder : recipes) {
             if (isValidRecipeFor(recipeHolder, level, pos, state) && roll <= baseChance * recipeHolder.value().chanceMultiplier()) {
-                candidates.add(new WeightedRecipeHolder<>(recipeHolder));
+                candidates.add(recipeHolder);
             }
         }
-        return WeightedRandom.getRandomItem(random, candidates).map(WeightedRecipeHolder::recipeHolder);
+        return WeightedRandom.getRandomItem(random, candidates, it -> it.value().weight());
     }
 
     private static boolean isValidRecipeFor(RecipeHolder<GoldRushRecipe> recipe, ServerLevel level, BlockPos pos, BlockState state) {
