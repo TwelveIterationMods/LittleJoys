@@ -1,1 +1,1 @@
-- Fixed overworld dig spots dropping iron ore instead of raw iron
+- Added support for Aquaculture fishing rods

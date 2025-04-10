@@ -4,6 +4,8 @@
   "package": "${group}.${mod_id}.forge.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
+    "FishingHookAccessor",
+    "AquaFishingBobberEntityMixin"
   ],
   "client": [
   ],

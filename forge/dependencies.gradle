@@ -3,4 +3,5 @@ dependencies {
         changing = balm_version.contains("SNAPSHOT")
     }
     modImplementation("net.blay09.mods:kuma-api-forge:${kuma_version}")
+    modCompileOnly("curse.maven:aquaculture-60028:6296111")
 }
