@@ -66,7 +66,7 @@ public record FluidIngredient(Value[] values) {
         if (json.has("fluid") && json.has("tag")) {
             throw new JsonParseException("A fluid ingredient entry is either a tag or a fluid, not both");
         } else if (json.has("fluid")) {
-            final var fluid = BuiltInRegistries.FLUID.get(ResourceLocation.parse(GsonHelper.getAsString(json, "fluid")));
+            final var fluid = BuiltInRegistries.FLUID.getValue(ResourceLocation.parse(GsonHelper.getAsString(json, "fluid")));
             return new FluidValue(fluid);
         } else if (json.has("tag")) {
             final var tag = TagKey.create(Registries.FLUID, ResourceLocation.parse(GsonHelper.getAsString(json, "tag")));
@@ -78,7 +78,7 @@ public record FluidIngredient(Value[] values) {
 
     public static FluidIngredient fromNetwork(FriendlyByteBuf buffer) {
         return fromValues(buffer.readList(FriendlyByteBuf::readResourceLocation)
-                .stream().map(BuiltInRegistries.FLUID::get).map(FluidValue::new));
+                .stream().map(BuiltInRegistries.FLUID::getValue).map(FluidValue::new));
     }
 
     public void toNetwork(FriendlyByteBuf buffer) {

@@ -26,8 +26,8 @@ public class FishingSpotLootModifier implements BalmLootModifier {
         }
 
         final var level = context.getLevel();
-        final var origin = context.getParamOrNull(LootContextParams.ORIGIN);
-        final var entity = context.getParamOrNull(LootContextParams.THIS_ENTITY);
+        final var origin = context.getOptionalParameter(LootContextParams.ORIGIN);
+        final var entity = context.getOptionalParameter(LootContextParams.THIS_ENTITY);
         if (origin == null || !(entity instanceof FishingSpotHolder fishingSpotHolder)) {
             return;
         }
@@ -36,15 +36,13 @@ public class FishingSpotLootModifier implements BalmLootModifier {
         if (fishingSpotPos.isPresent() && level.getBlockEntity(fishingSpotPos.get()) instanceof FishingSpotBlockEntity fishingSpot) {
             FishingSpotHandler.resolveRecipe(level, fishingSpotPos.get(), fishingSpot.getRecipeId()).ifPresent(recipeHolder -> {
                 final var lootTableId = recipeHolder.value().lootTable();
-                if (lootTableId != BuiltInLootTables.EMPTY) {
-                    final var lootTable = level.getServer().reloadableRegistries().getLootTable(lootTableId);
-                    synchronized (activeContexts) {
-                        activeContexts.add(context);
-                    }
-                    lootTable.getRandomItems(context, list::add);
-                    synchronized (activeContexts) {
-                        activeContexts.remove(context);
-                    }
+                final var lootTable = level.getServer().reloadableRegistries().getLootTable(lootTableId);
+                synchronized (activeContexts) {
+                    activeContexts.add(context);
+                }
+                lootTable.getRandomItems(context, list::add);
+                synchronized (activeContexts) {
+                    activeContexts.remove(context);
                 }
             });
         }

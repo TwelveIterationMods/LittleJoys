@@ -7,8 +7,8 @@ import net.blay09.mods.littlejoys.LittleJoys;
 import net.blay09.mods.littlejoys.LittleJoysConfig;
 import net.blay09.mods.littlejoys.block.ModBlocks;
 import net.blay09.mods.littlejoys.block.entity.FishingSpotBlockEntity;
+import net.blay09.mods.littlejoys.mixin.RecipeManagerAccessor;
 import net.blay09.mods.littlejoys.particle.ModParticles;
-import net.blay09.mods.littlejoys.recipe.DigSpotRecipe;
 import net.blay09.mods.littlejoys.recipe.FishingSpotRecipe;
 import net.blay09.mods.littlejoys.recipe.ModRecipeTypes;
 import net.blay09.mods.littlejoys.recipe.WeightedRecipeHolder;
@@ -16,15 +16,15 @@ import net.blay09.mods.littlejoys.recipe.condition.EventContextImpl;
 import net.blay09.mods.littlejoys.stats.ModStats;
 import net.blay09.mods.littlejoys.tag.ModPoiTypeTags;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FishingHook;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.jetbrains.annotations.Nullable;
@@ -92,8 +92,9 @@ public class FishingSpotHandler {
     }
 
     private static Optional<RecipeHolder<FishingSpotRecipe>> findRecipe(ServerLevel level, BlockPos pos) {
-        final var recipeManager = level.getRecipeManager();
-        final var recipes = recipeManager.getAllRecipesFor(ModRecipeTypes.fishingSpotRecipeType);
+        final var recipeManager = level.getServer().getRecipeManager();
+        final var recipeMap = ((RecipeManagerAccessor) recipeManager).getRecipes();
+        final var recipes = recipeMap.byType(ModRecipeTypes.fishingSpotRecipeType);
         final var candidates = new ArrayList<WeightedRecipeHolder<FishingSpotRecipe>>();
         for (final var recipe : recipes) {
             if (isValidRecipeFor(recipe, level, pos)) {
@@ -109,8 +110,8 @@ public class FishingSpotHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private static Optional<RecipeHolder<FishingSpotRecipe>> recipeById(ServerLevel level, @Nullable ResourceLocation recipeId) {
-        final var recipeManager = level.getRecipeManager();
+    private static Optional<RecipeHolder<FishingSpotRecipe>> recipeById(ServerLevel level, @Nullable ResourceKey<Recipe<?>> recipeId) {
+        final var recipeManager = level.recipeAccess();
         if (recipeId == null) {
             return Optional.empty();
         }
@@ -121,7 +122,7 @@ public class FishingSpotHandler {
         return Optional.empty();
     }
 
-    public static Optional<RecipeHolder<FishingSpotRecipe>> resolveRecipe(ServerLevel level, BlockPos pos, @Nullable ResourceLocation recipeId) {
+    public static Optional<RecipeHolder<FishingSpotRecipe>> resolveRecipe(ServerLevel level, BlockPos pos, @Nullable ResourceKey<Recipe<?>> recipeId) {
         final var optRecipe = FishingSpotHandler.recipeById(level, recipeId);
         if (optRecipe.isPresent() && FishingSpotHandler.isValidRecipeFor(optRecipe.get(), level, pos)) {
             return optRecipe;

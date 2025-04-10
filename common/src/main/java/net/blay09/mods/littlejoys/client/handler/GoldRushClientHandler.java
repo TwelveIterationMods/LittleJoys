@@ -19,6 +19,8 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 
+import java.util.Optional;
+
 public class GoldRushClientHandler {
 
     private static final RandomSource random = RandomSource.create();
@@ -70,7 +72,7 @@ public class GoldRushClientHandler {
     public static void addActiveGoldRush(BlockPos pos) {
         final var level = Minecraft.getInstance().level;
         if (level != null) {
-            activeGoldRushes.put(level.dimension(), pos, new GoldRushInstance(pos, level.getBlockState(pos), BuiltInLootTables.EMPTY, -1, -1));
+            activeGoldRushes.put(level.dimension(), pos, new GoldRushInstance(pos, level.getBlockState(pos), Optional.empty(), -1, -1));
         }
     }
 

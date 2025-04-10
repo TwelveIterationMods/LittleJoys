@@ -4,7 +4,6 @@ import net.blay09.mods.balm.api.loot.BalmLootModifier;
 import net.blay09.mods.littlejoys.block.entity.DigSpotBlockEntity;
 import net.blay09.mods.littlejoys.handler.DigSpotHandler;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.storage.loot.BuiltInLootTables;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
@@ -25,24 +24,22 @@ public class DigSpotLootModifier implements BalmLootModifier {
         }
 
         final var level = context.getLevel();
-        final var vec = context.getParamOrNull(LootContextParams.ORIGIN);
-        final var state = context.getParamOrNull(LootContextParams.BLOCK_STATE);
-        final var blockEntity = context.getParamOrNull(LootContextParams.BLOCK_ENTITY);
+        final var vec = context.getOptionalParameter(LootContextParams.ORIGIN);
+        final var state = context.getOptionalParameter(LootContextParams.BLOCK_STATE);
+        final var blockEntity = context.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (state == null || vec == null || !(blockEntity instanceof DigSpotBlockEntity digSpot)) {
             return;
         }
 
         DigSpotHandler.recipeById(level, digSpot.getRecipeId()).ifPresent(recipe -> {
             final var lootTableId = recipe.lootTable();
-            if (lootTableId != BuiltInLootTables.EMPTY) {
-                final var lootTable = level.getServer().reloadableRegistries().getLootTable(lootTableId);
-                synchronized (activeContexts) {
-                    activeContexts.add(context);
-                }
-                lootTable.getRandomItems(context, list::add);
-                synchronized (activeContexts) {
-                    activeContexts.remove(context);
-                }
+            final var lootTable = level.getServer().reloadableRegistries().getLootTable(lootTableId);
+            synchronized (activeContexts) {
+                activeContexts.add(context);
+            }
+            lootTable.getRandomItems(context, list::add);
+            synchronized (activeContexts) {
+                activeContexts.remove(context);
             }
         });
     }

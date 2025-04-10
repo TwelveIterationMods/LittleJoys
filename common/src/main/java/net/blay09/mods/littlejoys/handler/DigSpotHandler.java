@@ -7,6 +7,7 @@ import net.blay09.mods.littlejoys.LittleJoys;
 import net.blay09.mods.littlejoys.LittleJoysConfig;
 import net.blay09.mods.littlejoys.block.ModBlocks;
 import net.blay09.mods.littlejoys.block.entity.DigSpotBlockEntity;
+import net.blay09.mods.littlejoys.mixin.RecipeManagerAccessor;
 import net.blay09.mods.littlejoys.recipe.DigSpotRecipe;
 import net.blay09.mods.littlejoys.recipe.ModRecipeTypes;
 import net.blay09.mods.littlejoys.recipe.WeightedRecipeHolder;
@@ -14,12 +15,13 @@ import net.blay09.mods.littlejoys.recipe.condition.EventContextImpl;
 import net.blay09.mods.littlejoys.stats.ModStats;
 import net.blay09.mods.littlejoys.tag.ModPoiTypeTags;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.jetbrains.annotations.Nullable;
@@ -98,8 +100,9 @@ public class DigSpotHandler {
     }
 
     private static Optional<RecipeHolder<DigSpotRecipe>> findRecipe(ServerLevel level, BlockPos pos) {
-        final var recipeManager = level.getRecipeManager();
-        final var recipes = recipeManager.getAllRecipesFor(ModRecipeTypes.digSpotRecipeType);
+        final var recipeManager = level.getServer().getRecipeManager();
+        final var recipeMap = ((RecipeManagerAccessor) recipeManager).getRecipes();
+        final var recipes = recipeMap.byType(ModRecipeTypes.digSpotRecipeType);
         final var candidates = new ArrayList<WeightedRecipeHolder<DigSpotRecipe>>();
         for (final var recipe : recipes) {
             if (isValidRecipeFor(recipe, level, pos)) {
@@ -114,8 +117,8 @@ public class DigSpotHandler {
         return recipe.value().eventCondition().test(context);
     }
 
-    public static Optional<DigSpotRecipe> recipeById(ServerLevel level, @Nullable ResourceLocation recipeId) {
-        final var recipeManager = level.getRecipeManager();
+    public static Optional<DigSpotRecipe> recipeById(ServerLevel level, @Nullable ResourceKey<Recipe<?>> recipeId) {
+        final var recipeManager = level.recipeAccess();
         if (recipeId == null) {
             return Optional.empty();
         }
