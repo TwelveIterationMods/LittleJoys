@@ -3,4 +3,7 @@ dependencies {
         changing = balm_version.contains("SNAPSHOT")
     }
     implementation("net.blay09.mods:kuma-api-forge:${kuma_version}")
+    compileOnly("curse.maven:aquaculture-60028:6296111")
+    //runtimeOnly("curse.maven:cloth-config-348521:5729105")
+    compileOnly("curse.maven:tide-884685:6106873")
 }

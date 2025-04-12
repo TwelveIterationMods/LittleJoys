@@ -8,6 +8,7 @@
     "FishingHookMixin",
     "BlockMixin",
     "SweetBerryBushBlockMixin",
+    "TideFishingHookMixin",
     "RecipeManagerAccessor"
   ],
   "client": [
