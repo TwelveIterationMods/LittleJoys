@@ -14,7 +14,6 @@ import net.blay09.mods.littlejoys.recipe.condition.EventContextImpl;
 import net.blay09.mods.littlejoys.stats.ModStats;
 import net.blay09.mods.littlejoys.tag.ModPoiTypeTags;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -22,7 +21,6 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedRandom;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.projectile.FishingHook;
 import net.minecraft.world.level.levelgen.Heightmap;
 import org.jetbrains.annotations.Nullable;
 
@@ -131,7 +129,7 @@ public class FishingSpotHandler {
         return poiManager.findClosest(it -> it.is(ModPoiTypeTags.FISHING_SPOTS), pos, range, PoiManager.Occupancy.ANY);
     }
 
-    public static int claimFishingSpot(FishingHook fishingHook, ServerLevel level, BlockPos pos) {
+    public static int claimFishingSpot(ServerLevel level, BlockPos pos) {
         level.sendParticles(ModParticles.goldRush,
                 pos.getX() + 0.5f,
                 pos.getY() + 0.5f,
@@ -148,13 +146,12 @@ public class FishingSpotHandler {
         return Math.round(LittleJoysConfig.getActive().fishingSpots.secondsUntilLured * 20);
     }
 
-    public static void consumeFishingSpot(FishingHook fishingHook, ServerLevel level, BlockPos pos) {
+    public static void consumeFishingSpot(@Nullable Player player, ServerLevel level, BlockPos pos) {
         final var x = pos.getX() + 0.5f;
         final var y = pos.getY() + 0.5f;
         final var z = pos.getZ() + 0.5f;
         level.sendParticles(ParticleTypes.CLOUD, x, y, z, 8, 0.25f, 0.25f, 0.25f, 0f);
         level.destroyBlock(pos, false);
-        final var player = fishingHook.getPlayerOwner();
         if (player != null) {
             player.awardStat(ModStats.fishingSpotsFished);
 
