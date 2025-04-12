@@ -5,5 +5,5 @@ dependencies {
     modImplementation("net.blay09.mods:kuma-api-forge:${kuma_version}")
     modCompileOnly("curse.maven:aquaculture-60028:6296111")
     //modRuntimeOnly("curse.maven:cloth-config-348521:5729105")
-    //modRuntimeOnly("curse.maven:tide-884685:6106864")
+    modCompileOnly("curse.maven:tide-884685:6106864")
 }
