@@ -2,7 +2,6 @@ package net.blay09.mods.littlejoys.recipe;
 
 import com.google.gson.JsonObject;
 import com.mojang.serialization.JsonOps;
-import net.blay09.mods.littlejoys.LittleJoysConfig;
 import net.blay09.mods.littlejoys.api.EventCondition;
 import net.blay09.mods.littlejoys.recipe.condition.EventConditionRegistry;
 import net.minecraft.core.RegistryAccess;
@@ -88,8 +87,8 @@ public record GoldRushRecipe(ResourceLocation identifier,
         public GoldRushRecipe fromNetwork(ResourceLocation identifier, FriendlyByteBuf buf) {
             final var eventCondition = EventConditionRegistry.conditionFromNetwork(buf);
             final var chanceMultiplier = buf.readFloat();
-            final var seconds = buf.readFloat();
             final var lootTable = buf.readResourceLocation();
+            final var seconds = buf.readFloat();
             final var maxDropsPerSecond = buf.readFloat();
             final var weight = Weight.of(buf.readVarInt());
             return new GoldRushRecipe(identifier, eventCondition, chanceMultiplier, lootTable, seconds, maxDropsPerSecond, weight);
