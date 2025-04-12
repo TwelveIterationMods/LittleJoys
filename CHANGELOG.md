@@ -1,3 +1,4 @@
-- Fixed crash on startup 
-
-- Added support for Aquaculture fishing rods
+- Fixed error when connecting to servers
+- Added support for Tide
+  - However, Tide only supports a single item to be fished at once.
+  - It is recommended to configure a data pack that changes the fishing spot loot table to drop Tide crates when using Tide.
