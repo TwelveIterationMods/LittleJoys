@@ -35,7 +35,8 @@ public record ClientboundStopDropRushPacket(Reason reason) implements CustomPack
 
     public enum Reason implements StringRepresentable {
         TIME_UP,
-        FULL_CLEAR;
+        FULL_CLEAR,
+        DISCONNECT;
 
         private static final IntFunction<Reason> BY_ID = ByIdMap.continuous(Reason::ordinal, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
         public static final StreamCodec<ByteBuf, Reason> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, Reason::ordinal);

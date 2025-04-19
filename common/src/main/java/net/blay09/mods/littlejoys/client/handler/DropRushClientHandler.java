@@ -3,6 +3,7 @@ package net.blay09.mods.littlejoys.client.handler;
 import net.blay09.mods.balm.api.Balm;
 import net.blay09.mods.balm.api.event.TickPhase;
 import net.blay09.mods.balm.api.event.TickType;
+import net.blay09.mods.balm.api.event.client.DisconnectedFromServerEvent;
 import net.blay09.mods.littlejoys.LittleJoys;
 import net.blay09.mods.littlejoys.network.protocol.ClientboundStopDropRushPacket;
 import net.blay09.mods.littlejoys.sound.ModSounds;
@@ -46,6 +47,9 @@ public class DropRushClientHandler {
                 }
             }
         });
+        Balm.getEvents().onEvent(DisconnectedFromServerEvent.class, (event) -> {
+            stopDropRush(ClientboundStopDropRushPacket.Reason.DISCONNECT);
+        });
     }
 
     public static void startDropRush(int ticks) {
@@ -63,7 +67,7 @@ public class DropRushClientHandler {
         dropRushActive = false;
         minecraft.getSoundManager().stop(ResourceLocation.fromNamespaceAndPath(LittleJoys.MOD_ID, "drop_rush"), SoundSource.PLAYERS);
         minecraft.getSoundManager().stop(ResourceLocation.fromNamespaceAndPath(LittleJoys.MOD_ID, "drop_rush_stop"), SoundSource.PLAYERS);
-        if (reason == ClientboundStopDropRushPacket.Reason.FULL_CLEAR) {
+        if (reason == ClientboundStopDropRushPacket.Reason.FULL_CLEAR && minecraft.level != null && minecraft.player != null) {
             minecraft.level.playSound(minecraft.player, minecraft.player, SoundEvents.PLAYER_LEVELUP, SoundSource.PLAYERS, 1f, 1f);
         }
     }
