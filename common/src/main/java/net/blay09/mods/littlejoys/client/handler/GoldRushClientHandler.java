@@ -70,7 +70,7 @@ public class GoldRushClientHandler {
         });
         Balm.getEvents().onEvent(DisconnectedFromServerEvent.class, (event) -> {
             activeGoldRushes.clear();
-            Minecraft.getInstance().getSoundManager().stop(new ResourceLocation(LittleJoys.MOD_ID, "gold_rush"), SoundSource.BLOCKS);
+            Minecraft.getInstance().getSoundManager().stop(ResourceLocation.fromNamespaceAndPath(LittleJoys.MOD_ID, "gold_rush"), SoundSource.BLOCKS);
         });
     }
 
