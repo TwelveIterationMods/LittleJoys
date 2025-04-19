@@ -102,7 +102,7 @@ public class GoldRushHandler {
                     if (level.getBlockState(goldRush.getPos()).equals(goldRush.getInitialState())) {
                         level.destroyBlock(goldRush.getPos(), true);
                     }
-                    Balm.getNetworking().sendToTracking(((ServerLevel) level), goldRush.getPos(), new ClientboundGoldRushPacket(goldRush.getPos(), false));
+                    Balm.getNetworking().sendToAll(level.getServer(), new ClientboundGoldRushPacket(goldRush.getPos(), false));
                 }
             }
             activeGoldRushes.values().removeIf(it -> it.getTicksPassed() >= it.getMaxTicks());
