@@ -5,6 +5,7 @@ import com.google.common.collect.Table;
 import net.blay09.mods.balm.api.Balm;
 import net.blay09.mods.balm.api.event.TickPhase;
 import net.blay09.mods.balm.api.event.TickType;
+import net.blay09.mods.balm.api.event.client.DisconnectedFromServerEvent;
 import net.blay09.mods.littlejoys.LittleJoys;
 import net.blay09.mods.littlejoys.handler.GoldRushInstance;
 import net.blay09.mods.littlejoys.particle.ModParticles;
@@ -64,6 +65,10 @@ public class GoldRushClientHandler {
                 }
                 goldRush.setTicksPassed(goldRush.getTicksPassed() + 1);
             }
+        });
+        Balm.getEvents().onEvent(DisconnectedFromServerEvent.class, (event) -> {
+            activeGoldRushes.clear();
+            Minecraft.getInstance().getSoundManager().stop(new ResourceLocation(LittleJoys.MOD_ID, "gold_rush"), SoundSource.BLOCKS);
         });
     }
 

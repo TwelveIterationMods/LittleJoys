@@ -13,7 +13,8 @@ public record ClientboundStopDropRushPacket(Reason reason) implements CustomPack
 
     public enum Reason {
         TIME_UP,
-        FULL_CLEAR
+        FULL_CLEAR,
+        DISCONNECT
     }
 
     public static void encode(FriendlyByteBuf buf, ClientboundStopDropRushPacket message) {
