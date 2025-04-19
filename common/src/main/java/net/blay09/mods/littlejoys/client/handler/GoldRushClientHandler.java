@@ -79,7 +79,9 @@ public class GoldRushClientHandler {
         final var level = minecraft.level;
         if (level != null) {
             activeGoldRushes.remove(level.dimension(), pos);
-            minecraft.getSoundManager().stop(ResourceLocation.fromNamespaceAndPath(LittleJoys.MOD_ID, "gold_rush"), SoundSource.BLOCKS);
+            if (activeGoldRushes.isEmpty()) {
+                minecraft.getSoundManager().stop(ResourceLocation.fromNamespaceAndPath(LittleJoys.MOD_ID, "gold_rush"), SoundSource.BLOCKS);
+            }
         }
     }
 }
