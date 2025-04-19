@@ -1,1 +1,3 @@
-- Initial Release
+- Fixed gold rush sound not stopping when leaving its area before it ends
+- Fixed gold rush and drop rush effects not resetting properly when leaving the world
+- Fixed all gold rush sounds stopping when one ends even if another is still present
