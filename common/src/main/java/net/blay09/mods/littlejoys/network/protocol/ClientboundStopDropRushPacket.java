@@ -8,7 +8,8 @@ public record ClientboundStopDropRushPacket(Reason reason) {
 
     public enum Reason {
         TIME_UP,
-        FULL_CLEAR
+        FULL_CLEAR,
+        DISCONNECT
     }
 
     public static void encode(ClientboundStopDropRushPacket message, FriendlyByteBuf buf) {
