@@ -17,8 +17,8 @@ public class ChunkLimitManager extends SavedData {
 
     private static final String DATA_NAME = LittleJoys.MOD_ID;
     private static final Codec<ChunkLimitManager> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            ExtraCodecs.strictUnboundedMap(Codec.LONG, Codec.INT).fieldOf("FishingSpotChunks").forGetter(ChunkLimitManager::getFishingSpotCounts),
-            ExtraCodecs.strictUnboundedMap(Codec.LONG, Codec.INT).fieldOf("DigSpotChunks").forGetter(ChunkLimitManager::getDigSpotCounts)
+            ExtraCodecs.strictUnboundedMap(Codec.STRING.xmap(Long::parseLong, String::valueOf), Codec.INT).fieldOf("FishingSpotChunks").forGetter(ChunkLimitManager::getFishingSpotCounts),
+            ExtraCodecs.strictUnboundedMap(Codec.STRING.xmap(Long::parseLong, String::valueOf), Codec.INT).fieldOf("DigSpotChunks").forGetter(ChunkLimitManager::getDigSpotCounts)
     ).apply(instance, ChunkLimitManager::new));
     private static final SavedDataType<ChunkLimitManager> TYPE = new SavedDataType<>(
             DATA_NAME,
