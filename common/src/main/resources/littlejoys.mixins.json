@@ -7,8 +7,7 @@
   "mixins": [
     "FishingHookMixin",
     "BlockMixin",
-    "SweetBerryBushBlockMixin",
-    "TideFishingHookMixin"
+    "SweetBerryBushBlockMixin"
   ],
   "client": [
     "ClientPacketListenerMixin"

@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_17",
   "mixins": [
     "FishingHookAccessor",
-    "AquaFishingBobberEntityMixin"
+    "AquaFishingBobberEntityMixin",
+    "TideFishingHookMixin"
   ],
   "client": [
   ],
