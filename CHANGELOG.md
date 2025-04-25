@@ -1,1 +1,1 @@
-- Possibly fixed yet another Mixin startup crash on Forge
+- Fixed crash on Fabric when Tide is installed
