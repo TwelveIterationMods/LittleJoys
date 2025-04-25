@@ -5,7 +5,8 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "littlejoys.refmap.json",
   "mixins": [
-    "AquaFishingBobberEntityMixin"
+    "AquaFishingBobberEntityMixin",
+    "TideFishingHookMixin"
   ],
   "client": [
   ],

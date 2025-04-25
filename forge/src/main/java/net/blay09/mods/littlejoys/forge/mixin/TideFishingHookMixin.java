@@ -1,4 +1,4 @@
-package net.blay09.mods.littlejoys.mixin;
+package net.blay09.mods.littlejoys.forge.mixin;
 
 import com.li64.tide.registries.entities.misc.fishing.TideFishingHook;
 import net.blay09.mods.littlejoys.handler.FishingSpotHandler;
