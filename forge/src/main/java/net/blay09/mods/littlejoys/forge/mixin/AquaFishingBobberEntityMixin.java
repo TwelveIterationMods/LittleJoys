@@ -3,6 +3,7 @@ package net.blay09.mods.littlejoys.forge.mixin;
 import com.teammetallurgy.aquaculture.entity.AquaFishingBobberEntity;
 import net.blay09.mods.littlejoys.handler.FishingSpotHandler;
 import net.blay09.mods.littlejoys.handler.FishingSpotHolder;
+import net.blay09.mods.littlejoys.mixin.FishingHookAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;

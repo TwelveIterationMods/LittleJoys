@@ -1,4 +1,4 @@
-package net.blay09.mods.littlejoys.forge.mixin;
+package net.blay09.mods.littlejoys.mixin;
 
 import net.minecraft.world.entity.projectile.FishingHook;
 import org.spongepowered.asm.mixin.Mixin;

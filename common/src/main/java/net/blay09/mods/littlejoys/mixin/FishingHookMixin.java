@@ -22,12 +22,6 @@ import java.util.Optional;
 @Mixin(FishingHook.class)
 public abstract class FishingHookMixin extends Entity implements FishingSpotHolder {
 
-    @Shadow
-    private int nibble;
-
-    @Shadow
-    private int timeUntilLured;
-
     @Nullable
     private BlockPos littlejoys_fishingSpot;
 
@@ -39,12 +33,12 @@ public abstract class FishingHookMixin extends Entity implements FishingSpotHold
     private void catchingFish(BlockPos pos, CallbackInfo ci) {
         if (level() instanceof ServerLevel serverLevel
                 && littlejoys_fishingSpot == null
-                && timeUntilLured > 40) {
+                && ((FishingHookAccessor) this).getTimeUntilLured() > 40) {
             FishingSpotHandler.findFishingSpot(serverLevel, pos).ifPresent(fishingSpotPos -> {
                 littlejoys_fishingSpot = fishingSpotPos;
                 int configuredTimeUntilLured = FishingSpotHandler.claimFishingSpot(serverLevel, fishingSpotPos);
                 if (configuredTimeUntilLured >= 0) {
-                    timeUntilLured = Math.max(1, configuredTimeUntilLured);
+                    ((FishingHookAccessor) this).setTimeUntilLured(Math.max(1, configuredTimeUntilLured));
                 }
             });
         }
@@ -53,7 +47,7 @@ public abstract class FishingHookMixin extends Entity implements FishingSpotHold
     @Inject(method = "retrieve", at = @At("RETURN"))
     private void retrieve(ItemStack itemStack, CallbackInfoReturnable<Integer> ci) {
         if (level() instanceof ServerLevel serverLevel) {
-            if (littlejoys_fishingSpot != null && nibble > 0) {
+            if (littlejoys_fishingSpot != null && ((FishingHookAccessor) this).getNibble() > 0) {
                 FishingSpotHandler.consumeFishingSpot(((FishingHook) (Object) this).getPlayerOwner(), serverLevel, littlejoys_fishingSpot);
             }
         }
