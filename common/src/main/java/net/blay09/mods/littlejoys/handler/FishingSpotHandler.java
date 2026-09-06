@@ -61,18 +61,22 @@ public class FishingSpotHandler {
                 if (fishingSpotInRange.isEmpty()) {
                     final var offsetX = random.nextInt(spawnRange + spawnRange) - spawnRange;
                     final var offsetZ = random.nextInt(spawnRange + spawnRange) - spawnRange;
-                    final var randomOffsetPos = new BlockPos(centerPos.getX() + offsetX, centerPos.getX(), centerPos.getZ() + offsetZ);
-                    final var surfacePos = level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, randomOffsetPos).below();
-                    final var aboveSurfacePos = surfacePos.above();
+                    final var randomOffsetPos = new BlockPos(centerPos.getX() + offsetX, centerPos.getY(), centerPos.getZ() + offsetZ);
 
-                    final var totalSpots = ChunkLimitManager.get(level).getTotalFishingSpotsInChunk(aboveSurfacePos);
                     final var maxSpots = LittleJoysConfig.getActive().fishingSpots.totalLimitPerChunk;
+                    final var totalSpots = ChunkLimitManager.get(level).getTotalFishingSpotsInChunk(randomOffsetPos);
                     if (maxSpots > 0 && totalSpots >= maxSpots) {
                         // If we have exceeded the total, don't bother re-checking until 10 seconds have passed
                         littleJoysData.putInt(FISHING_SPOT_COOLDOWN, 200);
                         return;
                     }
 
+                    if (!level.isLoaded(randomOffsetPos)) {
+                        littleJoysData.putInt(FISHING_SPOT_COOLDOWN, 20);
+                        return;
+                    }
+
+                    final var aboveSurfacePos = level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, randomOffsetPos);
                     if (!level.getBlockState(aboveSurfacePos).canBeReplaced()) {
                         // If this position was bad, try again in a second
                         littleJoysData.putInt(FISHING_SPOT_COOLDOWN, 20);
