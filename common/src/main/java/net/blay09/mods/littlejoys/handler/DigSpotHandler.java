@@ -47,7 +47,13 @@ public class DigSpotHandler {
                 final var spawnRange = LittleJoysConfig.getActive().digSpots.spawnDistance;
                 final var digSpotInRange = poiManager.getInRange(it -> it.is(ModPoiTypeTags.DIG_SPOTS), centerPos, checkRange, PoiManager.Occupancy.ANY).findAny();
                 if (digSpotInRange.isEmpty()) {
-                    final var surfacePos = getVerticallyNearRandomOffsetPos(level, centerPos, spawnRange);
+                    final var foundSurfacePos = getVerticallyNearRandomOffsetPos(level, centerPos, spawnRange);
+                    if (foundSurfacePos.isEmpty()) {
+                        littleJoysData.putInt(DIG_SPOT_COOLDOWN, 20);
+                        return;
+                    }
+
+                    final var surfacePos = foundSurfacePos.get();
                     final var aboveSurfacePos = surfacePos.above();
 
                     final var totalSpots = ChunkLimitManager.get(level).getTotalDigSpotsInChunk(aboveSurfacePos);
@@ -99,13 +105,17 @@ public class DigSpotHandler {
         return player.blockPosition().relative(forwardDirection, projectForwardDistance);
     }
 
-    private static BlockPos getVerticallyNearRandomOffsetPos(ServerLevel level, BlockPos origin, int spawnRange) {
+    private static Optional<BlockPos> getVerticallyNearRandomOffsetPos(ServerLevel level, BlockPos origin, int spawnRange) {
         BlockPos bestPos = null;
         int bestDist = Integer.MAX_VALUE;
         for (int i = 0; i < 5; i++) {
             final var offsetX = random.nextInt(spawnRange + spawnRange) - spawnRange;
             final var offsetZ = random.nextInt(spawnRange + spawnRange) - spawnRange;
-            final var randomOffsetPos = new BlockPos(origin.getX() + offsetX, origin.getX(), origin.getZ() + offsetZ);
+            final var randomOffsetPos = new BlockPos(origin.getX() + offsetX, origin.getY(), origin.getZ() + offsetZ);
+            if (!level.isLoaded(randomOffsetPos)) {
+                continue;
+            }
+
             final var surfacePos = level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, randomOffsetPos).below();
             final var surfaceDist = Math.abs(surfacePos.getY() - origin.getY());
             if (bestPos == null || surfaceDist < bestDist) {
@@ -113,7 +123,7 @@ public class DigSpotHandler {
                 bestDist = surfaceDist;
             }
         }
-        return bestPos;
+        return Optional.ofNullable(bestPos);
     }
 
     private static Optional<DigSpotRecipe> findRecipe(ServerLevel level, BlockPos pos, ServerPlayer player) {
