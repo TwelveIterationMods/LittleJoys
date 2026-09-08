@@ -1,2 +1,2 @@
-- Data Packs: Added `is_block` and `is_state_property` event conditions
-  - These are useful for adding support for blocks with many block properties, since they don't require all permutations to be specified
+- Fixed potential chunk loads while trying to spawn dig spots
+- Fixed potential chunk loads while trying to spawn fishing spots
